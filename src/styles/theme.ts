@@ -27,7 +27,10 @@ export const theme = {
     card: 'linear-gradient(145deg, #ffffff 0%, #f8f6f3 100%)',
   },
   fonts: {
-    heading: "'Playfair Display', serif",
+    // heading: "'Playfair Display', serif",
+    // body: "'Inter', sans-serif",
+    // accent: "'Poppins', sans-serif",
+    heading: "'Poppins', sans-serif",
     body: "'Inter', sans-serif",
     accent: "'Poppins', sans-serif",
   },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { theme } from '../styles/theme';
@@ -23,14 +23,16 @@ const HeaderContainer = styled(motion.header)<{ isScrolled: boolean }>`
   right: 0;
   z-index: ${theme.zIndex.sticky};
   background: ${props => props.isScrolled 
-    ? 'rgba(255, 255, 255, 0.95)' 
-    : 'rgba(255, 255, 255, 0.9)'};
+    ? 'rgba(255, 255, 255, 0.98)' 
+    : 'rgba(254, 252, 249, 0.95)'};
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid ${props => props.isScrolled 
-    ? 'rgba(229, 57, 53, 0.1)' 
-    : 'transparent'};
+  border-bottom: ${props => props.isScrolled 
+    ? `2px solid ${theme.colors.primary}` 
+    : '1px solid rgba(229, 57, 53, 0.1)'};
   transition: ${theme.transitions.normal};
-  box-shadow: ${props => props.isScrolled ? theme.shadows.md : 'none'};
+  box-shadow: ${props => props.isScrolled 
+    ? `0 8px 32px rgba(229, 57, 53, 0.15)` 
+    : '0 2px 20px rgba(0, 0, 0, 0.05)'};
 `;
 
 const HeaderContent = styled(Container)`
@@ -43,25 +45,65 @@ const Logo = styled(motion.div)`
   align-items: center;
   gap: ${theme.spacing.md};
   cursor: pointer;
+  flex-shrink: 0;
 `;
 
 const LogoImage = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: ${theme.borderRadius.full};
   object-fit: cover;
   box-shadow: ${theme.shadows.md};
+  transition: ${theme.transitions.fast};
+  
+  @media (min-width: ${theme.breakpoints.lg}) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const LogoText = styled.h1`
   font-family: ${theme.fonts.heading};
-  font-size: ${theme.fontSizes['2xl']};
+  font-size: ${theme.fontSizes.xl};
   font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.primary};
+  background: linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.primaryDark} 50%, ${theme.colors.primary} 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(229, 57, 53, 0.3);
+  letter-spacing: 0.5px;
+  position: relative;
+  transition: all ${theme.transitions.normal};
+  animation: shimmer 3s ease-in-out infinite;
+  
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, ${theme.colors.primary}, transparent);
+    opacity: 0;
+    transition: opacity ${theme.transitions.fast};
+  }
   
   @media (min-width: ${theme.breakpoints.md}) {
+    font-size: ${theme.fontSizes['2xl']};
+    letter-spacing: 1px;
+  }
+  
+  @media (min-width: ${theme.breakpoints.lg}) {
     font-size: ${theme.fontSizes['3xl']};
+    letter-spacing: 1.5px;
   }
 `;
 
@@ -69,7 +111,9 @@ const Navigation = styled.nav`
   display: none;
   
   @media (min-width: ${theme.breakpoints.lg}) {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing.xl};
   }
 `;
 
@@ -79,7 +123,7 @@ const NavList = styled.ul`
   align-items: center;
 `;
 
-const NavItem = styled(motion.li)<{ isActive?: boolean }>`
+const NavItem = styled(motion.li)`
   position: relative;
 `;
 
@@ -90,9 +134,11 @@ const NavLink = styled.a<{ isActive?: boolean }>`
   color: ${props => props.isActive ? theme.colors.primary : theme.colors.text};
   text-decoration: none;
   padding: ${theme.spacing.sm} ${theme.spacing.md};
-  border-radius: ${theme.borderRadius.lg};
+  border-radius: ${theme.borderRadius.md};
   transition: ${theme.transitions.fast};
   position: relative;
+  white-space: nowrap;
+  display: block;
   
   &:hover {
     color: ${theme.colors.primary};
@@ -112,6 +158,150 @@ const NavLink = styled.a<{ isActive?: boolean }>`
   }
 `;
 
+// Menu Dropdown for Desktop
+const MenuDropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const MenuButton = styled(motion.button)<{ isOpen: boolean; hasActive: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.sm};
+  font-family: ${theme.fonts.accent};
+  font-size: ${theme.fontSizes.base};
+  font-weight: ${theme.fontWeights.semibold};
+  color: ${props => props.hasActive ? theme.colors.primary : theme.colors.text};
+  background: ${props => props.hasActive ? 'rgba(229, 57, 53, 0.05)' : 'transparent'};
+  border: 2px solid ${props => props.hasActive ? theme.colors.primary : 'transparent'};
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.lg};
+  cursor: pointer;
+  transition: ${theme.transitions.fast};
+  position: relative;
+  
+  &:hover {
+    color: ${theme.colors.primary};
+    background: rgba(229, 57, 53, 0.05);
+    border-color: ${theme.colors.primary};
+  }
+  
+  svg {
+    transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+    transition: ${theme.transitions.fast};
+  }
+`;
+
+const MenuDropdown = styled(motion.div)`
+  position: absolute;
+  top: calc(100% + ${theme.spacing.sm});
+  left: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(25px);
+  border: 2px solid rgba(229, 57, 53, 0.1);
+  border-radius: ${theme.borderRadius.xl};
+  box-shadow: ${theme.shadows['2xl']};
+  min-width: 280px;
+  max-width: 350px;
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: ${theme.zIndex.dropdown};
+  
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(229, 57, 53, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${theme.colors.primary};
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${theme.colors.primaryDark};
+  }
+`;
+
+const MenuDropdownHeader = styled.div`
+  padding: ${theme.spacing.lg};
+  border-bottom: 2px solid rgba(229, 57, 53, 0.1);
+  background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, rgba(229, 57, 53, 0.02) 100%);
+`;
+
+const MenuDropdownTitle = styled.h3`
+  font-family: ${theme.fonts.heading};
+  font-size: ${theme.fontSizes.lg};
+  font-weight: ${theme.fontWeights.bold};
+  color: ${theme.colors.primary};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.sm};
+`;
+
+const MenuDropdownList = styled.ul`
+  padding: ${theme.spacing.md} 0;
+`;
+
+const MenuDropdownItem = styled(motion.li)`
+  border-bottom: 1px solid rgba(229, 57, 53, 0.05);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const MenuDropdownLink = styled.a<{ isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.md};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  font-family: ${theme.fonts.accent};
+  font-size: ${theme.fontSizes.base};
+  font-weight: ${theme.fontWeights.medium};
+  color: ${props => props.isActive ? theme.colors.primary : theme.colors.text};
+  text-decoration: none;
+  transition: ${theme.transitions.fast};
+  position: relative;
+  
+  &:hover {
+    color: ${theme.colors.primary};
+    background: rgba(229, 57, 53, 0.05);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: ${props => props.isActive ? '4px' : '0'};
+    background: ${theme.colors.primary};
+    transition: ${theme.transitions.fast};
+  }
+  
+  &:hover::before {
+    width: 4px;
+  }
+`;
+
+const CategoryIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  background: ${theme.gradients.primary};
+  border-radius: ${theme.borderRadius.md};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+`;
+
 const MobileMenuButton = styled(motion.button)`
   display: flex;
   align-items: center;
@@ -123,6 +313,7 @@ const MobileMenuButton = styled(motion.button)`
   cursor: pointer;
   border-radius: ${theme.borderRadius.lg};
   transition: ${theme.transitions.fast};
+  flex-shrink: 0;
   
   &:hover {
     background: rgba(229, 57, 53, 0.05);
@@ -177,6 +368,27 @@ const MobileMenu = styled(motion.div)`
 
 const MobileNavList = styled.ul`
   padding: ${theme.spacing.lg} 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  /* Custom scrollbar for mobile menu */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(229, 57, 53, 0.1);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${theme.colors.primary};
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${theme.colors.primaryDark};
+  }
 `;
 
 const MobileNavItem = styled(motion.li)`
@@ -206,6 +418,10 @@ const MobileNavLink = styled.a<{ isActive?: boolean }>`
 const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCategory }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const hasActiveCategory = !!activeCategory;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -214,6 +430,18 @@ const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCateg
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsMenuDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const scrollToSection = (categoryId: string) => {
@@ -227,6 +455,7 @@ const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCateg
       });
     }
     setIsMobileMenuOpen(false);
+    setIsMenuDropdownOpen(false);
   };
 
   const scrollToTop = () => {
@@ -235,6 +464,41 @@ const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCateg
       behavior: 'smooth'
     });
     setIsMobileMenuOpen(false);
+    setIsMenuDropdownOpen(false);
+  };
+
+  // Simple category icon generator
+  const getCategoryIcon = (categoryName: string) => {
+    const icons: { [key: string]: string } = {
+      'appetizer': '🥗',
+      'starter': '🥗',
+      'main': '🍽️',
+      'pizza': '🍕',
+      'burger': '🍔',
+      'pasta': '🍝',
+      'dessert': '🍰',
+      'drink': '🥤',
+      'beverage': '🥤',
+      'salad': '🥗',
+      'soup': '🍲',
+      'seafood': '🦐',
+      'chicken': '🍗',
+      'beef': '🥩',
+      'vegetarian': '🥬',
+      'vegan': '🌱',
+      'indian': '🍛',
+      'chinese': '🥢',
+      'mexican': '🌮',
+      'italian': '🍝',
+    };
+    
+    const lowerName = categoryName.toLowerCase();
+    for (const [key, icon] of Object.entries(icons)) {
+      if (lowerName.includes(key)) {
+        return icon;
+      }
+    }
+    return '🍽️'; // Default icon
   };
 
   return (
@@ -245,16 +509,34 @@ const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCateg
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <HeaderContent>
-        <Flex align="center" justify="space-between">
+        <Flex align="center" justify="space-between" gap={theme.spacing.md}>
           <Logo
             onClick={scrollToTop}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ 
+              scale: 1.05,
+              transition: { duration: 0.2 }
+            }}
             whileTap={{ scale: 0.95 }}
+            onHoverStart={() => {
+              // Add hover effect to logo text underline
+            }}
           >
             {restaurantInfo.logo && (
-              <LogoImage src={restaurantInfo.logo} alt={restaurantInfo.name} />
+              <LogoImage 
+                src={restaurantInfo.logo} 
+                alt={restaurantInfo.name}
+                style={{
+                  filter: 'drop-shadow(0 4px 8px rgba(229, 57, 53, 0.2))'
+                }}
+              />
             )}
-            <LogoText>{restaurantInfo.name}</LogoText>
+            <LogoText 
+              style={{
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+              }}
+            >
+              {restaurantInfo.name}
+            </LogoText>
           </Logo>
 
           <Navigation>
@@ -274,25 +556,75 @@ const Header: React.FC<HeaderProps> = ({ restaurantInfo, categories, activeCateg
                   Home
                 </NavLink>
               </NavItem>
-              {categories.map((category) => (
-                <NavItem
-                  key={category.id}
+            </NavList>
+            
+            {categories.length > 0 && (
+              <MenuDropdownContainer ref={dropdownRef}>
+                <MenuButton
+                  isOpen={isMenuDropdownOpen}
+                  hasActive={hasActiveCategory}
+                  onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
                   whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <NavLink
-                    href={`#${category.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(category.id);
-                    }}
-                    isActive={activeCategory === category.id}
-                  >
-                    {category.name}
-                  </NavLink>
-                </NavItem>
-              ))}
-            </NavList>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <path d="M9 9h6v6H9z"/>
+                  </svg>
+                  Menu
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6,9 12,15 18,9"></polyline>
+                  </svg>
+                </MenuButton>
+                
+                <AnimatePresence>
+                  {isMenuDropdownOpen && (
+                    <MenuDropdown
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <MenuDropdownHeader>
+                        <MenuDropdownTitle>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                          </svg>
+                          Our Menu Categories
+                        </MenuDropdownTitle>
+                      </MenuDropdownHeader>
+                      
+                      <MenuDropdownList>
+                        {categories.map((category, index) => (
+                          <MenuDropdownItem
+                            key={category.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                          >
+                            <MenuDropdownLink
+                              href={`#${category.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                scrollToSection(category.id);
+                              }}
+                              isActive={activeCategory === category.id}
+                            >
+                              <CategoryIcon>
+                                {getCategoryIcon(category.name)}
+                              </CategoryIcon>
+                              {category.name}
+                            </MenuDropdownLink>
+                          </MenuDropdownItem>
+                        ))}
+                      </MenuDropdownList>
+                    </MenuDropdown>
+                  )}
+                </AnimatePresence>
+              </MenuDropdownContainer>
+            )}
           </Navigation>
 
           <MobileMenuButton

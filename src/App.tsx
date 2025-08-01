@@ -7,8 +7,8 @@ import { GlobalStyles } from './styles/GlobalStyles';
 // Components
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
+import SearchSection from './components/SearchSection';
 import MenuCategory from './components/MenuCategory';
-import FloatingFilter from './components/FloatingFilter';
 import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -68,7 +68,7 @@ const fallbackRestaurantInfo: RestaurantInfo = {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'veg' | string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>(fallbackRestaurantInfo);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -125,26 +125,25 @@ function App() {
     loadFirebaseData();
   }, [RESTAURANT_ID]);
 
-  // Filter menu based on active filter
+  // Filter menu based on search query
   const filteredMenu = useMemo(() => {
-    if (activeFilter === 'all') {
+    if (!searchQuery.trim()) {
       return menu;
     }
 
-    if (activeFilter === 'veg') {
-      return menu.map(category => ({
-        ...category,
-        items: category.items.filter(item => item.isVeg)
-      })).filter(category => category.items.length > 0);
-    }
-
-    // Filter by specific category
-    return menu.filter(category => category.id === activeFilter);
-  }, [menu, activeFilter]);
+    const query = searchQuery.toLowerCase().trim();
+    return menu.map(category => ({
+      ...category,
+      items: category.items.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        (item.description && item.description.toLowerCase().includes(query))
+      )
+    })).filter(category => category.items.length > 0);
+  }, [menu, searchQuery]);
 
   // Handle scroll-based active category detection
   useEffect(() => {
-    if (activeFilter !== 'all') return;
+    if (searchQuery) return;
 
     const handleScroll = () => {
       const categories = document.querySelectorAll('.category-section');
@@ -163,11 +162,11 @@ function App() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeFilter]);
+  }, [searchQuery]);
 
-  // Handle filter changes
-  const handleFilterChange = (filter: 'all' | 'veg' | string) => {
-    setActiveFilter(filter);
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
     setActiveCategory('');
   };
 
@@ -194,6 +193,11 @@ function App() {
         <main>
           <HeroSection restaurantInfo={restaurantInfo} />
 
+          <SearchSection
+            onSearch={handleSearch}
+            searchQuery={searchQuery}
+          />
+
           <motion.div
             className="menu-container"
             initial={{ opacity: 0 }}
@@ -204,7 +208,7 @@ function App() {
               {filteredMenu.map((category, index) => (
                 category.items.length > 0 && (
                   <MenuCategory
-                    key={`${category.id}-${activeFilter}`}
+                    key={`${category.id}-${searchQuery}`}
                     category={category}
                     animationDelay={index * 0.1}
                   />
@@ -212,7 +216,7 @@ function App() {
               ))}
             </AnimatePresence>
 
-            {filteredMenu.length === 0 && (
+            {filteredMenu.length === 0 && searchQuery && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -224,19 +228,13 @@ function App() {
               >
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
                 <h3>No items found</h3>
-                <p>Try adjusting your filter to see more items.</p>
+                <p>No dishes match "{searchQuery}". Try a different search term.</p>
               </motion.div>
             )}
           </motion.div>
         </main>
 
         <Footer restaurantInfo={restaurantInfo} />
-
-        <FloatingFilter
-          categories={menu}
-          activeFilter={activeFilter}
-          onFilterChange={handleFilterChange}
-        />
       </div>
     </ThemeProvider>
   );

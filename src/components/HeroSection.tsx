@@ -40,7 +40,7 @@ const HeroContent = styled(Container)`
   z-index: 3;
   text-align: center;
   padding-top: 120px;
-  padding-bottom: ${theme.spacing['3xl']};
+  padding-bottom: ${theme.spacing['4xl']};
 `;
 
 const HeroWelcome = styled(motion.div)`
@@ -87,7 +87,7 @@ const HeroSubtitle2 = styled(motion.p)`
   font-size: clamp(0.9rem, 3vw, 1.1rem);
   font-weight: ${theme.fontWeights.medium};
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: ${theme.spacing['2xl']};
+  margin-bottom: ${theme.spacing['3xl']};
   text-transform: uppercase;
   letter-spacing: 2px;
 `;
@@ -97,7 +97,7 @@ const HeroActions = styled(motion.div)`
   flex-direction: column;
   gap: ${theme.spacing.md};
   align-items: center;
-  margin-bottom: ${theme.spacing['2xl']};
+  margin-bottom: ${theme.spacing['3xl']};
   
   @media (min-width: ${theme.breakpoints.sm}) {
     flex-direction: row;
@@ -179,40 +179,6 @@ const HeroButton = styled(motion.button) <{ variant?: 'primary' | 'secondary' }>
   &:active {
     transform: translateY(0);
   }
-`;
-
-const HeroStats = styled(motion.div)`
-  display: flex;
-  justify-content: center;
-  gap: ${theme.spacing.xl};
-  flex-wrap: wrap;
-  margin-bottom: ${theme.spacing['2xl']};
-`;
-
-const StatItem = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.lg};
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: ${theme.borderRadius.xl};
-  min-width: 120px;
-`;
-
-const StatNumber = styled.div`
-  font-family: ${theme.fonts.heading};
-  font-size: ${theme.fontSizes['2xl']};
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.white};
-  margin-bottom: ${theme.spacing.xs};
-`;
-
-const StatLabel = styled.div`
-  font-family: ${theme.fonts.accent};
-  font-size: ${theme.fontSizes.sm};
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 1px;
 `;
 
 const ScrollIndicator = styled(motion.div)`
@@ -359,29 +325,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ restaurantInfo }) => {
           </HeroSubtitle2>
         )}
 
-        <HeroStats
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0 }}
-        >
-          <StatItem>
-            <StatNumber>50+</StatNumber>
-            <StatLabel>Dishes</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>4.8</StatNumber>
-            <StatLabel>Rating</StatLabel>
-          </StatItem>
-          <StatItem>
-            <StatNumber>15min</StatNumber>
-            <StatLabel>Delivery</StatLabel>
-          </StatItem>
-        </HeroStats>
-
         <HeroActions
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
         >
           <HeroButton
             onClick={scrollToMenu}
@@ -413,7 +360,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ restaurantInfo }) => {
         onClick={scrollToMenu}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.8 }}
+        transition={{ duration: 1, delay: 1.4 }}
         whileHover={{ scale: 1.1 }}
       >
         <ScrollText>Scroll to Menu</ScrollText>
