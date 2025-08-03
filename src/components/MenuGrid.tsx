@@ -330,12 +330,8 @@ const ItemHeader = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `;
 
-const ItemTopRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing[3]};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+const ItemTitleSection = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
 `;
 
 const ItemName = styled.h3`
@@ -343,24 +339,21 @@ const ItemName = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.base};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text};
-  margin: 0;
+  margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
   line-height: 1.4;
-  flex: 1;
-  max-width: 60%;
+  word-wrap: break-word;
+  hyphens: auto;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fontSizes.sm};
-    max-width: 65%;
   }
 `;
 
 const PriceContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: ${({ theme }) => theme.spacing[1]};
-  min-width: 35%;
-  text-align: right;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
 `;
 
 const Price = styled.div`
@@ -368,7 +361,6 @@ const Price = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.primary};
-  white-space: nowrap;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fontSizes.base};
@@ -639,7 +631,7 @@ const MenuGrid: React.FC<MenuGridProps> = ({
               
               <ItemContent $viewMode={viewMode}>
                 <ItemHeader>
-                  <ItemTopRow>
+                  <ItemTitleSection>
                     <ItemName>{item.name}</ItemName>
                     <PriceContainer>
                       <Price>{item.price}</Price>
@@ -647,7 +639,7 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                         <OriginalPrice>{item.originalPrice}</OriginalPrice>
                       )}
                     </PriceContainer>
-                  </ItemTopRow>
+                  </ItemTitleSection>
                   
                   {item.description && (
                     <ItemDescription>{item.description}</ItemDescription>
