@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Grid, List, SortAsc, Star, Clock, ChevronDown } from 'lucide-react';
+import { Grid, List, SortAsc, Clock, ChevronDown } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -12,7 +12,6 @@ interface MenuItem {
   description?: string;
   isVeg: boolean;
   isPopular?: boolean;
-  rating?: number;
   prepTime?: string;
   categoryName?: string;
 }
@@ -34,7 +33,7 @@ interface MenuGridProps {
   isMobile?: boolean;
 }
 
-type SortOption = 'name' | 'price-low' | 'price-high' | 'popular' | 'rating';
+type SortOption = 'name' | 'price-low' | 'price-high' | 'popular';
 
 const GridContainer = styled.div`
   width: 100%;
@@ -308,9 +307,9 @@ const PopularBadge = styled.div`
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   backdrop-filter: blur(10px);
   
-  svg {
-    width: 10px;
-    height: 10px;
+  &::before {
+    content: '🔥';
+    font-size: 10px;
   }
 `;
 
@@ -327,62 +326,31 @@ const ItemHeader = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `;
 
+const ItemTopRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`;
+
 const ItemName = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
+  margin: 0;
   line-height: 1.3;
+  flex: 1;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fontSizes.base};
   }
 `;
 
-const ItemDescription = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textMuted};
-  line-height: 1.4;
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
-
-const ItemMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
-  flex-wrap: wrap;
-`;
-
-const MetaItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[1]};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textLight};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  
-  svg {
-    width: 12px;
-    height: 12px;
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const ItemFooter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing[3]};
-`;
-
 const PriceContainer = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: ${({ theme }) => theme.spacing[1]};
 `;
 
@@ -401,6 +369,39 @@ const OriginalPrice = styled.span`
   color: ${({ theme }) => theme.colors.textMuted};
   text-decoration: line-through;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
+`;
+
+const ItemDescription = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.4;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const ItemMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+`;
+
+const MetaItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[1]};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textLight};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  
+  svg {
+    width: 12px;
+    height: 12px;
+    color: ${({ theme }) => theme.colors.primary};
+  }
 `;
 
 const EmptyState = styled(motion.div)`
@@ -446,7 +447,6 @@ const MenuGrid: React.FC<MenuGridProps> = ({
     { value: 'price-low', label: 'Price (Low to High)' },
     { value: 'price-high', label: 'Price (High to Low)' },
     { value: 'popular', label: 'Most Popular' },
-    { value: 'rating', label: 'Highest Rated' },
   ];
 
   const sortedItems = useMemo(() => {
@@ -475,13 +475,6 @@ const MenuGrid: React.FC<MenuGridProps> = ({
           if (a.isPopular && !b.isPopular) return -1;
           if (!a.isPopular && b.isPopular) return 1;
           return 0;
-        });
-      
-      case 'rating':
-        return itemsCopy.sort((a, b) => {
-          const ratingA = a.rating || 0;
-          const ratingB = b.rating || 0;
-          return ratingB - ratingA;
         });
       
       default:
@@ -623,28 +616,28 @@ const MenuGrid: React.FC<MenuGridProps> = ({
               <ItemImage $image={item.image} $viewMode={viewMode}>
                 {item.isPopular && (
                   <PopularBadge>
-                    <Star />
                     Popular
                   </PopularBadge>
                 )}
               </ItemImage>
               
               <ItemContent $viewMode={viewMode}>
-                <div>
-                  <ItemHeader>
+                <ItemHeader>
+                  <ItemTopRow>
                     <ItemName>{item.name}</ItemName>
-                    {item.description && (
-                      <ItemDescription>{item.description}</ItemDescription>
-                    )}
-                  </ItemHeader>
+                    <PriceContainer>
+                      <Price>{item.price}</Price>
+                      {item.originalPrice && (
+                        <OriginalPrice>{item.originalPrice}</OriginalPrice>
+                      )}
+                    </PriceContainer>
+                  </ItemTopRow>
+                  
+                  {item.description && (
+                    <ItemDescription>{item.description}</ItemDescription>
+                  )}
                   
                   <ItemMeta>
-                    {item.rating && (
-                      <MetaItem>
-                        <Star />
-                        <span>{item.rating}</span>
-                      </MetaItem>
-                    )}
                     {item.prepTime && (
                       <MetaItem>
                         <Clock />
@@ -657,16 +650,7 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                       </MetaItem>
                     )}
                   </ItemMeta>
-                </div>
-                
-                <ItemFooter>
-                  <PriceContainer>
-                    <Price>{item.price}</Price>
-                    {item.originalPrice && (
-                      <OriginalPrice>{item.originalPrice}</OriginalPrice>
-                    )}
-                  </PriceContainer>
-                </ItemFooter>
+                </ItemHeader>
               </ItemContent>
             </ItemCard>
           ))}

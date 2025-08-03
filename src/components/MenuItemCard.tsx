@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Clock, Leaf, Flame, Heart, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Clock, Leaf, Flame, Heart, Plus, Minus, ShoppingCart } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -12,7 +12,6 @@ interface MenuItem {
   description?: string;
   isVeg: boolean;
   isPopular?: boolean;
-  rating?: number;
   prepTime?: string;
 }
 
@@ -105,7 +104,7 @@ const BadgeContainer = styled.div`
   z-index: 2;
 `;
 
-const Badge = styled(motion.div)<{ $variant: 'popular' | 'veg' | 'rating' }>`
+const Badge = styled(motion.div)<{ $variant: 'popular' | 'veg' }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs};
@@ -129,12 +128,6 @@ const Badge = styled(motion.div)<{ $variant: 'popular' | 'veg' | 'rating' }>`
           background: rgba(16, 185, 129, 0.9);
           color: ${theme.colors.white};
           border: 1px solid rgba(16, 185, 129, 0.3);
-        `;
-      case 'rating':
-        return `
-          background: rgba(99, 102, 241, 0.9);
-          color: ${theme.colors.white};
-          border: 1px solid rgba(99, 102, 241, 0.3);
         `;
       default:
         return '';
@@ -402,18 +395,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, animationDelay = 0 })
               Veg
             </Badge>
           )}
-          
-          {item.rating && (
-            <Badge
-              $variant="rating"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: animationDelay + 0.4 }}
-            >
-              <Star />
-              {item.rating}
-            </Badge>
-          )}
         </BadgeContainer>
         
         <FavoriteButton
@@ -444,13 +425,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, animationDelay = 0 })
         </ItemHeader>
         
         <ItemMeta>
-          {item.rating && (
-            <MetaItem>
-              <Star />
-              <span>{item.rating}</span>
-            </MetaItem>
-          )}
-          
           {item.prepTime && (
             <MetaItem>
               <Clock />

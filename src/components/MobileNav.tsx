@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Search, Phone, Star } from 'lucide-react';
+import { Menu, X, Search, Phone, Clock } from 'lucide-react';
 
 interface MenuCategory {
   id: string;
@@ -397,11 +397,11 @@ const MobileNav: React.FC<MobileNavProps> = ({
                 
                 <ContactCard>
                   <ContactIcon>
-                    <Star />
+                    <Clock />
                   </ContactIcon>
                   <ContactText>
-                    <ContactLabel>Rating</ContactLabel>
-                    <ContactValue>4.8 ★</ContactValue>
+                    <ContactLabel>Hours</ContactLabel>
+                    <ContactValue>9 AM - 11 PM</ContactValue>
                   </ContactText>
                 </ContactCard>
               </ContactGrid>

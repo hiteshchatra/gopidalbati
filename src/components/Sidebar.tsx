@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Phone, MapPin, Clock, Star, Filter } from 'lucide-react';
+import { Search, Phone, MapPin, Clock, Filter, ChefHat } from 'lucide-react';
 
 interface MenuCategory {
   id: string;
@@ -148,30 +148,30 @@ const SearchIcon = styled.div`
 `;
 
 const QuickStats = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing[3]};
+  display: flex;
+  justify-content: center;
   margin-bottom: ${({ theme }) => theme.spacing[5]};
 `;
 
 const StatCard = styled.div`
-  background: ${({ theme }) => theme.colors.backgroundAlt};
+  background: ${({ theme }) => theme.gradients.primary};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.white};
+  box-shadow: ${({ theme }) => theme.shadows.md};
 `;
 
 const StatValue = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
+  font-size: ${({ theme }) => theme.fontSizes.xl};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  color: ${({ theme }) => theme.colors.primary};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `;
 
 const StatLabel = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  opacity: 0.9;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
@@ -188,7 +188,7 @@ const SectionTitle = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.base};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
@@ -223,24 +223,28 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[4]};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
   background: ${({ $isActive, theme }) => 
-    $isActive ? theme.colors.primary : theme.colors.backgroundAlt};
+    $isActive ? theme.gradients.primary : theme.colors.surface};
   border: 1px solid ${({ $isActive, theme }) => 
     $isActive ? theme.colors.primary : theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   color: ${({ $isActive, theme }) => 
     $isActive ? theme.colors.white : theme.colors.text};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.normal};
   text-align: left;
+  box-shadow: ${({ $isActive, theme }) => 
+    $isActive ? theme.shadows.md : theme.shadows.sm};
   
   &:hover {
     background: ${({ $isActive, theme }) => 
       $isActive ? theme.colors.primaryDark : theme.colors.surfaceHover};
-    transform: translateX(2px);
+    transform: translateX(4px);
+    box-shadow: ${({ theme }) => theme.shadows.lg};
   }
   
   &:last-child {
@@ -248,10 +252,22 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   }
 `;
 
-const CategoryIcon = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  min-width: 24px;
-  text-align: center;
+const CategoryLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  flex: 1;
+`;
+
+const CategoryIcon = styled.div<{ $isActive: boolean }>`
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ $isActive }) => $isActive ? 'rgba(255, 255, 255, 0.2)' : 'rgba(22, 163, 74, 0.1)'};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
 `;
 
 const CategoryInfo = styled.div`
@@ -259,15 +275,23 @@ const CategoryInfo = styled.div`
 `;
 
 const CategoryName = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  font-size: ${({ theme }) => theme.fontSizes.base};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
+  line-height: 1.2;
 `;
 
-const CategoryCount = styled.div`
+const CategoryCount = styled.div<{ $isActive: boolean }>`
   font-size: ${({ theme }) => theme.fontSizes.xs};
   opacity: 0.8;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
+  background: ${({ $isActive }) => $isActive ? 'rgba(255, 255, 255, 0.2)' : 'rgba(22, 163, 74, 0.1)'};
+  color: ${({ $isActive, theme }) => $isActive ? theme.colors.white : theme.colors.primary};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
 `;
 
 const ContactInfo = styled.div`
@@ -307,7 +331,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSearchChange,
 }) => {
   const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
-  const avgRating = 4.8;
 
   const allCategories = [
     { id: 'all', name: 'All Items', icon: '🍽️', items: { length: totalItems } },
@@ -348,11 +371,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <QuickStats>
           <StatCard>
             <StatValue>{totalItems}</StatValue>
-            <StatLabel>Items</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{avgRating}★</StatValue>
-            <StatLabel>Rating</StatLabel>
+            <StatLabel>Total Items</StatLabel>
           </StatCard>
         </QuickStats>
 
@@ -374,13 +393,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <CategoryIcon>{category.icon}</CategoryIcon>
-                <CategoryInfo>
-                  <CategoryName>{category.name}</CategoryName>
-                  <CategoryCount>
-                    {category.items?.length || category.items.length} items
-                  </CategoryCount>
-                </CategoryInfo>
+                <CategoryLeft>
+                  <CategoryIcon $isActive={activeCategory === category.id}>
+                    {category.icon}
+                  </CategoryIcon>
+                  <CategoryInfo>
+                    <CategoryName>{category.name}</CategoryName>
+                  </CategoryInfo>
+                </CategoryLeft>
+                <CategoryCount $isActive={activeCategory === category.id}>
+                  {category.items?.length || category.items.length}
+                </CategoryCount>
               </CategoryItem>
             ))}
           </CategoriesList>
@@ -398,8 +421,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span>9 AM - 11 PM</span>
           </ContactItem>
           <ContactItem>
-            <Star />
-            <span>4.8 Rating • 500+ Reviews</span>
+            <ChefHat />
+            <span>Fresh & Delicious Food</span>
           </ContactItem>
         </ContactInfo>
       </SidebarContent>
