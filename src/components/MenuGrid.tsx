@@ -202,17 +202,29 @@ const SortOption = styled(motion.button)`
 
 const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   display: grid;
-  gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[4] : theme.spacing[3]};
+  gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[3] : theme.spacing[3]};
   
   ${({ $viewMode }) => $viewMode === 'grid' ? `
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    @media (min-width: 1280px) {
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
     }
     
-    @media (max-width: 640px) {
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: ${({ theme }) => theme.spacing[2]};
+    }
+    
+    @media (max-width: 480px) {
       grid-template-columns: 1fr;
+      gap: ${({ theme }) => theme.spacing[3]};
     }
   ` : `
     grid-template-columns: 1fr;
@@ -245,7 +257,7 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
 const ItemImage = styled.div<{ $image?: string; $viewMode: 'grid' | 'list' }>`
   ${({ $viewMode }) => $viewMode === 'grid' ? `
     width: 100%;
-    height: 180px;
+    height: 160px;
   ` : `
     width: 100px;
     height: 100px;
@@ -275,7 +287,7 @@ const ItemImage = styled.div<{ $image?: string; $viewMode: 'grid' | 'list' }>`
     
     &::before {
       content: '🍽️';
-      font-size: ${$viewMode === 'list' ? '1.5rem' : '2.5rem'};
+      font-size: ${$viewMode === 'list' ? '1.5rem' : '2rem'};
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
   `}
@@ -303,7 +315,7 @@ const PopularBadge = styled.div`
 `;
 
 const ItemContent = styled.div<{ $viewMode: 'grid' | 'list' }>`
-  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1.25rem' : '0'};
+  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1rem' : '0'};
   flex: 1;
   display: flex;
   flex-direction: column;

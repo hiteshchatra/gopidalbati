@@ -76,11 +76,12 @@ function App() {
   // Restaurant ID from configuration
   const RESTAURANT_ID = APP_CONFIG.RESTAURANT_ID;
 
-  // Check if mobile
+  // Check if mobile with improved breakpoints
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      if (width >= 768) {
         setSidebarOpen(false);
       }
     };

@@ -59,12 +59,12 @@ const CardContainer = styled(motion.div)`
 const ImageContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 160px;
   overflow: hidden;
   background: ${({ theme }) => theme.colors.surfaceAlt};
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    height: 180px;
+    height: 140px;
   }
 `;
 
@@ -178,7 +178,7 @@ const FavoriteButton = styled(motion.button)`
 `;
 
 const CardContent = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing[4]};
   position: relative;
   z-index: 1;
 `;

@@ -245,6 +245,31 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     grid-template-columns: repeat(4, 1fr);
   }
 
+  .grid-cols-5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .grid-cols-6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  // Auto-fit grids for responsive design
+  .grid-auto-fit-xs {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .grid-auto-fit-sm {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .grid-auto-fit-md {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .grid-auto-fit-lg {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
   .gap-2 {
     gap: ${({ theme }) => theme.spacing[2]};
   }

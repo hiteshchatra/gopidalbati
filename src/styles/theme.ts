@@ -150,12 +150,13 @@ export const theme = {
   },
   
   breakpoints: {
-    xs: '475px',
-    sm: '640px',
+    xs: '360px',
+    sm: '480px',
     md: '768px',
     lg: '1024px',
     xl: '1280px',
-    '2xl': '1536px',
+    '2xl': '1440px',
+    '3xl': '1920px',
   },
   
   zIndex: {
