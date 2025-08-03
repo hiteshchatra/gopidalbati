@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Grid, List, Filter, SortAsc, Star, Clock, Heart, Plus, Minus, ShoppingCart, Leaf } from 'lucide-react';
+import { Grid, List, SortAsc, Star, Clock, ChevronDown } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -33,6 +33,8 @@ interface MenuGridProps {
   activeCategory: string;
   isMobile?: boolean;
 }
+
+type SortOption = 'name' | 'price-low' | 'price-high' | 'popular' | 'rating';
 
 const GridContainer = styled.div`
   width: 100%;
@@ -96,9 +98,9 @@ const HeaderControls = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   background: ${({ theme }) => theme.colors.surface};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   padding: ${({ theme }) => theme.spacing[1]};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  box-shadow: ${({ theme }) => theme.shadows.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
@@ -106,63 +108,112 @@ const ViewButton = styled(motion.button)<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ $isActive, theme }) => 
     $isActive ? theme.gradients.primary : 'transparent'};
   color: ${({ $isActive, theme }) => 
     $isActive ? theme.colors.white : theme.colors.textMuted};
   cursor: pointer;
-  transition: ${({ theme }) => theme.transitions.fast};
+  transition: ${({ theme }) => theme.transitions.normal};
   
   &:hover {
     background: ${({ $isActive, theme }) => 
       $isActive ? theme.gradients.primary : theme.colors.surfaceHover};
+    transform: scale(1.05);
   }
   
   svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
 `;
 
-const SortButton = styled(motion.button)`
+const SortContainer = styled.div`
+  position: relative;
+`;
+
+const SortButton = styled(motion.button)<{ $isOpen: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   transition: ${({ theme }) => theme.transitions.normal};
+  min-width: 120px;
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   
   &:hover {
     background: ${({ theme }) => theme.colors.surfaceHover};
     transform: translateY(-2px);
     box-shadow: ${({ theme }) => theme.shadows.md};
+    border-color: ${({ theme }) => theme.colors.primary};
   }
   
   svg {
     width: 16px;
     height: 16px;
+    transition: ${({ theme }) => theme.transitions.fast};
+    transform: ${({ $isOpen }) => $isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  }
+`;
+
+const SortDropdown = styled(motion.div)`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  box-shadow: ${({ theme }) => theme.shadows.xl};
+  overflow: hidden;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
+  min-width: 180px;
+`;
+
+const SortOption = styled(motion.button)`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  text-align: left;
+  transition: ${({ theme }) => theme.transitions.fast};
+  
+  &:hover {
+    background: ${({ theme }) => theme.colors.surfaceHover};
+    color: ${({ theme }) => theme.colors.primary};
+  }
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   }
 `;
 
 const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   display: grid;
-  gap: ${({ theme }) => theme.spacing[6]};
+  gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[6] : theme.spacing[4]};
   
   ${({ $viewMode }) => $viewMode === 'grid' ? `
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     
     @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
     
     @media (max-width: 640px) {
@@ -170,7 +221,6 @@ const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
     }
   ` : `
     grid-template-columns: 1fr;
-    gap: 1rem;
   `}
 `;
 
@@ -182,37 +232,55 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   transition: ${({ theme }) => theme.transitions.normal};
   cursor: pointer;
+  position: relative;
   
   ${({ $viewMode }) => $viewMode === 'list' ? `
     display: flex;
     align-items: stretch;
-    padding: 1rem;
-    min-height: 140px;
+    padding: 1.25rem;
+    min-height: 150px;
   ` : ''}
   
   &:hover {
-    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(4px)' : 'translateY(-4px)'};
+    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(6px)' : 'translateY(-6px)'};
     box-shadow: ${({ theme }) => theme.shadows.cardHover};
     border-color: ${({ theme }) => theme.colors.primary};
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ theme }) => theme.gradients.primary};
+    opacity: 0;
+    transition: ${({ theme }) => theme.transitions.normal};
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    opacity: 0.02;
   }
 `;
 
 const ItemImage = styled.div<{ $image?: string; $viewMode: 'grid' | 'list' }>`
   ${({ $viewMode }) => $viewMode === 'grid' ? `
     width: 100%;
-    height: 200px;
+    height: 220px;
   ` : `
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
     flex-shrink: 0;
-    margin-right: 1rem;
+    margin-right: 1.25rem;
     border-radius: 1rem;
     overflow: hidden;
     
     @media (max-width: 640px) {
-      width: 100px;
-      height: 100px;
-      margin-right: 0.75rem;
+      width: 110px;
+      height: 110px;
+      margin-right: 1rem;
     }
   `}
   
@@ -229,51 +297,27 @@ const ItemImage = styled.div<{ $image?: string; $viewMode: 'grid' | 'list' }>`
     
     &::before {
       content: '🍽️';
-      font-size: ${$viewMode === 'list' ? '2rem' : '3rem'};
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      font-size: ${$viewMode === 'list' ? '2.5rem' : '3.5rem'};
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
     }
   `}
 `;
 
-const ItemBadges = styled.div`
+const PopularBadge = styled.div`
   position: absolute;
   top: ${({ theme }) => theme.spacing[3]};
   left: ${({ theme }) => theme.spacing[3]};
   display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-`;
-
-const Badge = styled.div<{ $variant: 'popular' | 'veg' | 'rating' }>`
-  display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[1]};
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  background: rgba(245, 158, 11, 0.95);
+  color: ${({ theme }) => theme.colors.white};
   border-radius: ${({ theme }) => theme.borderRadius.full};
   font-size: ${({ theme }) => theme.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
   backdrop-filter: blur(10px);
-  
-  ${({ $variant, theme }) => {
-    switch ($variant) {
-      case 'popular':
-        return `
-          background: rgba(237, 137, 54, 0.9);
-          color: ${theme.colors.white};
-        `;
-      case 'veg':
-        return `
-          background: rgba(72, 187, 120, 0.9);
-          color: ${theme.colors.white};
-        `;
-      case 'rating':
-        return `
-          background: rgba(102, 126, 234, 0.9);
-          color: ${theme.colors.white};
-        `;
-      default:
-        return '';
-    }
-  }}
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   
   svg {
     width: 12px;
@@ -282,16 +326,18 @@ const Badge = styled.div<{ $variant: 'popular' | 'veg' | 'rating' }>`
 `;
 
 const ItemContent = styled.div<{ $viewMode: 'grid' | 'list' }>`
-  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1.5rem' : '0'};
+  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1.75rem' : '0'};
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: ${({ $viewMode }) => $viewMode === 'list' ? '120px' : 'auto'};
+  min-height: ${({ $viewMode }) => $viewMode === 'list' ? '130px' : 'auto'};
+  position: relative;
+  z-index: 1;
 `;
 
 const ItemHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
 `;
 
 const ItemName = styled.h3`
@@ -300,12 +346,16 @@ const ItemName = styled.h3`
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
   line-height: 1.3;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.lg};
+  }
 `;
 
 const ItemDescription = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
-  line-height: 1.5;
+  line-height: 1.6;
   margin-bottom: ${({ theme }) => theme.spacing[3]};
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -327,6 +377,7 @@ const MetaItem = styled.div`
   gap: ${({ theme }) => theme.spacing[1]};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textLight};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   
   svg {
     width: 16px;
@@ -355,121 +406,42 @@ const Price = styled.div`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.xl};
+  }
 `;
 
 const OriginalPrice = styled.span`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
   text-decoration: line-through;
-`;
-
-const ActionContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-`;
-
-const QuantityControl = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) => theme.colors.backgroundAlt};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: ${({ theme }) => theme.spacing[1]};
-`;
-
-const QuantityButton = styled(motion.button)`
-  width: 32px;
-  height: 32px;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  background: ${({ theme }) => theme.gradients.primary};
-  border: none;
-  color: ${({ theme }) => theme.colors.white};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const QuantityDisplay = styled.span`
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  color: ${({ theme }) => theme.colors.text};
-  min-width: 24px;
-  text-align: center;
-`;
-
-const AddButton = styled(motion.button)`
-  background: ${({ theme }) => theme.gradients.primary};
-  border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  color: ${({ theme }) => theme.colors.white};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const FavoriteButton = styled(motion.button)`
-  position: absolute;
-  top: ${({ theme }) => theme.spacing[3]};
-  right: ${({ theme }) => theme.spacing[3]};
-  width: 40px;
-  height: 40px;
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: none;
-  color: ${({ theme }) => theme.colors.error};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
 `;
 
 const EmptyState = styled(motion.div)`
   text-align: center;
-  padding: ${({ theme }) => theme.spacing[16]} ${({ theme }) => theme.spacing[8]};
+  padding: ${({ theme }) => theme.spacing[20]} ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.textMuted};
   
   .emoji {
-    font-size: 4rem;
+    font-size: 5rem;
     margin-bottom: ${({ theme }) => theme.spacing[6]};
-    opacity: 0.5;
+    opacity: 0.6;
   }
   
   h3 {
-    font-size: ${({ theme }) => theme.fontSizes['2xl']};
+    font-size: ${({ theme }) => theme.fontSizes['3xl']};
     margin-bottom: ${({ theme }) => theme.spacing[4]};
     color: ${({ theme }) => theme.colors.textLight};
+    font-weight: ${({ theme }) => theme.fontWeights.bold};
   }
   
   p {
     font-size: ${({ theme }) => theme.fontSizes.lg};
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 auto;
+    line-height: 1.6;
   }
 `;
 
@@ -482,27 +454,56 @@ const MenuGrid: React.FC<MenuGridProps> = ({
   activeCategory,
   isMobile = false,
 }) => {
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
-  const handleQuantityChange = (itemId: string, delta: number) => {
-    setQuantities(prev => ({
-      ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) + delta)
-    }));
-  };
+  const sortOptions = [
+    { value: 'name', label: 'Name (A-Z)' },
+    { value: 'price-low', label: 'Price (Low to High)' },
+    { value: 'price-high', label: 'Price (High to Low)' },
+    { value: 'popular', label: 'Most Popular' },
+    { value: 'rating', label: 'Highest Rated' },
+  ];
 
-  const toggleFavorite = (itemId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(itemId)) {
-        newFavorites.delete(itemId);
-      } else {
-        newFavorites.add(itemId);
-      }
-      return newFavorites;
-    });
-  };
+  const sortedItems = useMemo(() => {
+    const itemsCopy = [...items];
+    
+    switch (sortBy) {
+      case 'name':
+        return itemsCopy.sort((a, b) => a.name.localeCompare(b.name));
+      
+      case 'price-low':
+        return itemsCopy.sort((a, b) => {
+          const priceA = parseFloat(a.price.replace(/[^\d.]/g, ''));
+          const priceB = parseFloat(b.price.replace(/[^\d.]/g, ''));
+          return priceA - priceB;
+        });
+      
+      case 'price-high':
+        return itemsCopy.sort((a, b) => {
+          const priceA = parseFloat(a.price.replace(/[^\d.]/g, ''));
+          const priceB = parseFloat(b.price.replace(/[^\d.]/g, ''));
+          return priceB - priceA;
+        });
+      
+      case 'popular':
+        return itemsCopy.sort((a, b) => {
+          if (a.isPopular && !b.isPopular) return -1;
+          if (!a.isPopular && b.isPopular) return 1;
+          return 0;
+        });
+      
+      case 'rating':
+        return itemsCopy.sort((a, b) => {
+          const ratingA = a.rating || 0;
+          const ratingB = b.rating || 0;
+          return ratingB - ratingA;
+        });
+      
+      default:
+        return itemsCopy;
+    }
+  }, [items, sortBy]);
 
   const getHeaderTitle = () => {
     if (searchQuery) {
@@ -522,6 +523,10 @@ const MenuGrid: React.FC<MenuGridProps> = ({
     return `${items.length} delicious items to choose from`;
   };
 
+  const getCurrentSortLabel = () => {
+    return sortOptions.find(option => option.value === sortBy)?.label || 'Sort';
+  };
+
   if (items.length === 0) {
     return (
       <GridContainer>
@@ -534,7 +539,7 @@ const MenuGrid: React.FC<MenuGridProps> = ({
           <h3>No items found</h3>
           <p>
             {searchQuery 
-              ? `No dishes match "${searchQuery}". Try a different search term.`
+              ? `No dishes match "${searchQuery}". Try a different search term or browse our categories.`
               : 'This category is currently empty. Check back soon for delicious new additions!'
             }
           </p>
@@ -575,13 +580,42 @@ const MenuGrid: React.FC<MenuGridProps> = ({
             </ViewButton>
           </ViewToggle>
           
-          <SortButton
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <SortAsc />
-            Sort
-          </SortButton>
+          <SortContainer>
+            <SortButton
+              $isOpen={isSortOpen}
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <SortAsc />
+              <span>{getCurrentSortLabel()}</span>
+              <ChevronDown />
+            </SortButton>
+            
+            <AnimatePresence>
+              {isSortOpen && (
+                <SortDropdown
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {sortOptions.map((option) => (
+                    <SortOption
+                      key={option.value}
+                      onClick={() => {
+                        setSortBy(option.value as SortOption);
+                        setIsSortOpen(false);
+                      }}
+                      whileHover={{ x: 4 }}
+                    >
+                      {option.label}
+                    </SortOption>
+                  ))}
+                </SortDropdown>
+              )}
+            </AnimatePresence>
+          </SortContainer>
         </HeaderControls>
       </GridHeader>
 
@@ -592,48 +626,23 @@ const MenuGrid: React.FC<MenuGridProps> = ({
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <AnimatePresence mode="wait">
-          {items.map((item, index) => (
+          {sortedItems.map((item, index) => (
             <ItemCard
               key={item.id}
               $viewMode={viewMode}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
-              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.5, delay: index * 0.03 }}
+              whileHover={{ scale: viewMode === 'grid' ? 1.02 : 1.01 }}
               layout
             >
               <ItemImage $image={item.image} $viewMode={viewMode}>
-                <ItemBadges>
-                  {item.isPopular && (
-                    <Badge $variant="popular">
-                      <Star />
-                      Popular
-                    </Badge>
-                  )}
-                  {item.isVeg && (
-                    <Badge $variant="veg">
-                      <Leaf />
-                      Veg
-                    </Badge>
-                  )}
-                  {item.rating && (
-                    <Badge $variant="rating">
-                      <Star />
-                      {item.rating}
-                    </Badge>
-                  )}
-                </ItemBadges>
-                
-                <FavoriteButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(item.id);
-                  }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Heart fill={favorites.has(item.id) ? 'currentColor' : 'none'} />
-                </FavoriteButton>
+                {item.isPopular && (
+                  <PopularBadge>
+                    <Star />
+                    Popular
+                  </PopularBadge>
+                )}
               </ItemImage>
               
               <ItemContent $viewMode={viewMode}>
@@ -673,37 +682,6 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                       <OriginalPrice>{item.originalPrice}</OriginalPrice>
                     )}
                   </PriceContainer>
-                  
-                  <ActionContainer>
-                    {quantities[item.id] > 0 ? (
-                      <QuantityControl>
-                        <QuantityButton
-                          onClick={() => handleQuantityChange(item.id, -1)}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <Minus />
-                        </QuantityButton>
-                        <QuantityDisplay>{quantities[item.id]}</QuantityDisplay>
-                        <QuantityButton
-                          onClick={() => handleQuantityChange(item.id, 1)}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <Plus />
-                        </QuantityButton>
-                      </QuantityControl>
-                    ) : (
-                      <AddButton
-                        onClick={() => handleQuantityChange(item.id, 1)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Plus />
-                        Add
-                      </AddButton>
-                    )}
-                  </ActionContainer>
                 </ItemFooter>
               </ItemContent>
             </ItemCard>
