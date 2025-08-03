@@ -2,8 +2,8 @@ import { createGlobalStyle } from 'styled-components';
 import { Theme } from './theme';
 
 export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
-  // Import fonts
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+  // Import modern fonts
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
   // Reset
   *, *::before, *::after {
@@ -29,6 +29,15 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     text-rendering: optimizeLegibility;
     height: 100%;
     overflow-x: hidden;
+    
+    // Animated mesh background
+    background-image: 
+      ${({ theme }) => theme.gradients.mesh1},
+      ${({ theme }) => theme.gradients.mesh2},
+      ${({ theme }) => theme.gradients.mesh3};
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    animation: meshShift 20s ease-in-out infinite;
   }
 
   #root {
@@ -46,7 +55,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     }
   }
 
-  // Scrollbar styling
+  // Enhanced scrollbar styling
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -54,15 +63,18 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
 
   ::-webkit-scrollbar-track {
     background: ${({ theme }) => theme.colors.backgroundAlt};
+    border-radius: ${({ theme }) => theme.borderRadius.full};
   }
 
   ::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.gradients.primary};
     border-radius: ${({ theme }) => theme.borderRadius.full};
+    transition: ${({ theme }) => theme.transitions.normal};
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: ${({ theme }) => theme.colors.primaryDark};
+    transform: scale(1.1);
   }
 
   // Selection styling
@@ -123,10 +135,11 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
   a {
     color: ${({ theme }) => theme.colors.primary};
     text-decoration: none;
-    transition: ${({ theme }) => theme.transitions.fast};
+    transition: ${({ theme }) => theme.transitions.normal};
     
     &:hover {
       color: ${({ theme }) => theme.colors.primaryDark};
+      transform: translateY(-1px);
     }
   }
 
@@ -161,6 +174,25 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
   // List styles
   ul, ol {
     list-style: none;
+  }
+
+  // Glass morphism utility classes
+  .glass {
+    background: ${({ theme }) => theme.glass.background};
+    backdrop-filter: ${({ theme }) => theme.glass.backdropFilter};
+    -webkit-backdrop-filter: ${({ theme }) => theme.glass.backdropFilter};
+    border: ${({ theme }) => theme.glass.border};
+    box-shadow: ${({ theme }) => theme.glass.boxShadow};
+  }
+
+  .glass-hover {
+    transition: ${({ theme }) => theme.transitions.normal};
+    
+    &:hover {
+      background: ${({ theme }) => theme.colors.glassHover};
+      transform: translateY(-2px);
+      box-shadow: ${({ theme }) => theme.shadows.glassHover};
+    }
   }
 
   // Utility classes
@@ -224,136 +256,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     cursor: pointer;
   }
 
-  // Grid utilities
-  .grid {
-    display: grid;
-  }
-
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .grid-cols-4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .gap-2 {
-    gap: ${({ theme }) => theme.spacing[2]};
-  }
-
-  .gap-4 {
-    gap: ${({ theme }) => theme.spacing[4]};
-  }
-
-  .gap-6 {
-    gap: ${({ theme }) => theme.spacing[6]};
-  }
-
-  .gap-8 {
-    gap: ${({ theme }) => theme.spacing[8]};
-  }
-
-  // Spacing utilities
-  .p-2 {
-    padding: ${({ theme }) => theme.spacing[2]};
-  }
-
-  .p-4 {
-    padding: ${({ theme }) => theme.spacing[4]};
-  }
-
-  .p-6 {
-    padding: ${({ theme }) => theme.spacing[6]};
-  }
-
-  .p-8 {
-    padding: ${({ theme }) => theme.spacing[8]};
-  }
-
-  .m-2 {
-    margin: ${({ theme }) => theme.spacing[2]};
-  }
-
-  .m-4 {
-    margin: ${({ theme }) => theme.spacing[4]};
-  }
-
-  .m-6 {
-    margin: ${({ theme }) => theme.spacing[6]};
-  }
-
-  .m-8 {
-    margin: ${({ theme }) => theme.spacing[8]};
-  }
-
-  .mt-auto {
-    margin-top: auto;
-  }
-
-  .mb-auto {
-    margin-bottom: auto;
-  }
-
-  .mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  // Border radius utilities
-  .rounded {
-    border-radius: ${({ theme }) => theme.borderRadius.base};
-  }
-
-  .rounded-lg {
-    border-radius: ${({ theme }) => theme.borderRadius.lg};
-  }
-
-  .rounded-xl {
-    border-radius: ${({ theme }) => theme.borderRadius.xl};
-  }
-
-  .rounded-full {
-    border-radius: ${({ theme }) => theme.borderRadius.full};
-  }
-
-  // Shadow utilities
-  .shadow {
-    box-shadow: ${({ theme }) => theme.shadows.base};
-  }
-
-  .shadow-md {
-    box-shadow: ${({ theme }) => theme.shadows.md};
-  }
-
-  .shadow-lg {
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
-
-  .shadow-xl {
-    box-shadow: ${({ theme }) => theme.shadows.xl};
-  }
-
-  // Animations
+  // Enhanced animations
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideUp {
     from {
       opacity: 0;
       transform: translateY(30px);
@@ -364,10 +268,21 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     }
   }
 
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @keyframes slideDown {
     from {
       opacity: 0;
-      transform: translateY(-30px);
+      transform: translateY(-40px);
     }
     to {
       opacity: 1;
@@ -378,7 +293,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
   @keyframes scaleIn {
     from {
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.8);
     }
     to {
       opacity: 1;
@@ -389,9 +304,11 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
   @keyframes pulse {
     0%, 100% {
       opacity: 1;
+      transform: scale(1);
     }
     50% {
-      opacity: 0.7;
+      opacity: 0.8;
+      transform: scale(1.05);
     }
   }
 
@@ -400,7 +317,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
       transform: translateY(0px);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-15px);
     }
   }
 
@@ -411,6 +328,204 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     to {
       transform: rotate(360deg);
     }
+  }
+
+  @keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+      transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+      transform: translate3d(0, -30px, 0);
+    }
+    70% {
+      transform: translate3d(0, -15px, 0);
+    }
+    90% {
+      transform: translate3d(0, -4px, 0);
+    }
+  }
+
+  @keyframes wiggle {
+    0%, 7% {
+      transform: rotateZ(0);
+    }
+    15% {
+      transform: rotateZ(-15deg);
+    }
+    20% {
+      transform: rotateZ(10deg);
+    }
+    25% {
+      transform: rotateZ(-10deg);
+    }
+    30% {
+      transform: rotateZ(6deg);
+    }
+    35% {
+      transform: rotateZ(-4deg);
+    }
+    40%, 100% {
+      transform: rotateZ(0);
+    }
+  }
+
+  @keyframes meshShift {
+    0%, 100% {
+      background-position: 0% 50%, 100% 50%, 50% 0%;
+    }
+    50% {
+      background-position: 100% 50%, 0% 50%, 50% 100%;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes flipInX {
+    from {
+      transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+      animation-timing-function: ease-in;
+      opacity: 0;
+    }
+    40% {
+      transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+      animation-timing-function: ease-in;
+    }
+    60% {
+      transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+      opacity: 1;
+    }
+    80% {
+      transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+    }
+    to {
+      transform: perspective(400px);
+    }
+  }
+
+  // Loading animation
+  .loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      ${({ theme }) => theme.colors.surface} 0%,
+      ${({ theme }) => theme.colors.surfaceAlt} 50%,
+      ${({ theme }) => theme.colors.surface} 100%
+    );
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  // Hover effects
+  .hover-lift {
+    transition: ${({ theme }) => theme.transitions.normal};
+    
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: ${({ theme }) => theme.shadows.floatingHover};
+    }
+  }
+
+  .hover-scale {
+    transition: ${({ theme }) => theme.transitions.normal};
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .hover-glow {
+    transition: ${({ theme }) => theme.transitions.normal};
+    
+    &:hover {
+      box-shadow: ${({ theme }) => theme.shadows.primary};
+    }
+  }
+
+  // Focus styles
+  .focus-ring {
+    &:focus {
+      outline: 2px solid ${({ theme }) => theme.colors.primary};
+      outline-offset: 2px;
+    }
+  }
+
+  // Animation utility classes
+  .animate-fadeIn {
+    animation: ${({ theme }) => theme.animations.fadeIn};
+  }
+
+  .animate-slideUp {
+    animation: ${({ theme }) => theme.animations.slideUp};
+  }
+
+  .animate-scaleIn {
+    animation: ${({ theme }) => theme.animations.scaleIn};
+  }
+
+  .animate-pulse {
+    animation: ${({ theme }) => theme.animations.pulse};
+  }
+
+  .animate-float {
+    animation: ${({ theme }) => theme.animations.float};
+  }
+
+  .animate-bounce {
+    animation: ${({ theme }) => theme.animations.bounce};
+  }
+
+  .animate-wiggle {
+    animation: ${({ theme }) => theme.animations.wiggle};
   }
 
   // Responsive utilities
@@ -440,14 +555,6 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     .md\\:flex {
       display: flex;
     }
-    
-    .md\\:grid-cols-1 {
-      grid-template-columns: repeat(1, 1fr);
-    }
-    
-    .md\\:grid-cols-2 {
-      grid-template-columns: repeat(2, 1fr);
-    }
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -462,49 +569,6 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     .sm\\:flex {
       display: flex;
     }
-    
-    .sm\\:grid-cols-1 {
-      grid-template-columns: repeat(1, 1fr);
-    }
-    
-    .sm\\:text-center {
-      text-align: center;
-    }
-  }
-
-  // Focus styles
-  .focus\\:outline-none:focus {
-    outline: none;
-  }
-
-  .focus\\:ring:focus {
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-
-  // Hover effects
-  .hover\\:shadow-lg:hover {
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
-
-  .hover\\:scale-105:hover {
-    transform: scale(1.05);
-  }
-
-  .hover\\:scale-110:hover {
-    transform: scale(1.1);
-  }
-
-  // Transition utilities
-  .transition {
-    transition: ${({ theme }) => theme.transitions.normal};
-  }
-
-  .transition-fast {
-    transition: ${({ theme }) => theme.transitions.fast};
-  }
-
-  .transition-slow {
-    transition: ${({ theme }) => theme.transitions.slow};
   }
 
   // Print styles
