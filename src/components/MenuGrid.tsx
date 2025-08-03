@@ -330,30 +330,56 @@ const ItemHeader = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `;
 
-const ItemTitleSection = styled.div`
+const ItemTitleSection = styled.div<{ $viewMode: 'grid' | 'list' }>`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
+  
+  ${({ $viewMode }) => $viewMode === 'list' ? `
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  ` : `
+    display: flex;
+    flex-direction: column;
+  `}
 `;
 
-const ItemName = styled.h3`
+const ItemName = styled.h3<{ $viewMode: 'grid' | 'list' }>`
   font-family: ${({ theme }) => theme.fonts.heading};
   font-size: ${({ theme }) => theme.fontSizes.base};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text};
-  margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
+  margin: 0;
   line-height: 1.4;
   word-wrap: break-word;
   hyphens: auto;
+  
+  ${({ $viewMode }) => $viewMode === 'list' ? `
+    flex: 1;
+    margin-right: 1rem;
+  ` : `
+    margin-bottom: 0.5rem;
+  `}
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fontSizes.sm};
   }
 `;
 
-const PriceContainer = styled.div`
+const PriceContainer = styled.div<{ $viewMode: 'grid' | 'list' }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  
+  ${({ $viewMode }) => $viewMode === 'list' ? `
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    text-align: right;
+    gap: 0.25rem;
+  ` : `
+    margin-bottom: 0.5rem;
+  `}
 `;
 
 const Price = styled.div`
@@ -631,9 +657,9 @@ const MenuGrid: React.FC<MenuGridProps> = ({
               
               <ItemContent $viewMode={viewMode}>
                 <ItemHeader>
-                  <ItemTitleSection>
-                    <ItemName>{item.name}</ItemName>
-                    <PriceContainer>
+                  <ItemTitleSection $viewMode={viewMode}>
+                    <ItemName $viewMode={viewMode}>{item.name}</ItemName>
+                    <PriceContainer $viewMode={viewMode}>
                       <Price>{item.price}</Price>
                       {item.originalPrice && (
                         <OriginalPrice>{item.originalPrice}</OriginalPrice>
