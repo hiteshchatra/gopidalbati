@@ -6,45 +6,50 @@ interface LoadingSpinnerProps {
   restaurantName: string;
 }
 
-// Keyframe animations
-const gradientShift = keyframes`
+// Modern keyframe animations
+const morphing = keyframes`
   0%, 100% {
-    background-position: 0% 50%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: rotate(90deg) scale(1.1);
   }
   50% {
-    background-position: 100% 50%;
+    border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+    transform: rotate(180deg) scale(0.9);
+  }
+  75% {
+    border-radius: 60% 40% 60% 30% / 70% 30% 60% 40%;
+    transform: rotate(270deg) scale(1.05);
   }
 `;
 
-const float = keyframes`
+const liquidWave = keyframes`
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateX(-50%) translateY(0px);
   }
-  33% {
-    transform: translateY(-10px) rotate(2deg);
-  }
-  66% {
-    transform: translateY(5px) rotate(-1deg);
+  50% {
+    transform: translateX(-50%) translateY(-10px);
   }
 `;
 
-const shimmer = keyframes`
+const textGlow = keyframes`
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(22, 163, 74, 0.5), 0 0 40px rgba(22, 163, 74, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(22, 163, 74, 0.8), 0 0 60px rgba(22, 163, 74, 0.5);
+  }
+`;
+
+const orbit = keyframes`
   0% {
-    transform: translateX(-100%);
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
   }
   100% {
-    transform: translateX(100%);
-  }
-`;
-
-const pulse = keyframes`
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
   }
 `;
 
@@ -55,183 +60,183 @@ const LoadingContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
-  background-size: 400% 400%;
-  animation: ${gradientShift} 8s ease infinite;
+  background: #0a0a0a;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: ${({ theme }) => theme.zIndex.modal};
   overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(22, 163, 74, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  }
 `;
 
 const LoadingContent = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 3rem;
   text-align: center;
   position: relative;
   z-index: 2;
 `;
 
-const LogoContainer = styled(motion.div)`
+const LogoSection = styled(motion.div)`
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 `;
 
-const LogoBackground = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+const MorphingShape = styled.div`
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(45deg, #16a34a, #22c55e, #10b981);
+  animation: ${morphing} 4s ease-in-out infinite;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 0 60px rgba(22, 163, 74, 0.4),
+    inset 0 0 60px rgba(255, 255, 255, 0.1);
+  z-index: 2;
 `;
 
 const LogoIcon = styled.div`
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  position: relative;
+  z-index: 1;
+`;
+
+const OrbitingDots = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 3.5rem;
-  animation: ${float} 3s ease-in-out infinite;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  width: 240px;
+  height: 240px;
+  z-index: 1;
 `;
 
-const LoadingRings = styled.div`
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
-`;
-
-const Ring = styled.div<{ $delay: number; $size: number }>`
+const OrbitDot = styled.div<{ $delay: number; $size: number }>`
   position: absolute;
   top: 50%;
   left: 50%;
   width: ${({ $size }) => $size}px;
   height: ${({ $size }) => $size}px;
-  margin-left: ${({ $size }) => -$size / 2}px;
-  margin-top: ${({ $size }) => -$size / 2}px;
-  border: 2px solid transparent;
-  border-top: 2px solid rgba(255, 255, 255, 0.8);
-  border-right: 2px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(45deg, #22c55e, #10b981);
   border-radius: 50%;
-  animation: spin 2s linear infinite;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+  animation: ${orbit} 3s linear infinite;
   animation-delay: ${({ $delay }) => $delay}s;
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+  transform-origin: 0 0;
+  margin-top: ${({ $size }) => -$size / 2}px;
+  margin-left: ${({ $size }) => -$size / 2}px;
 `;
 
-const TextContainer = styled(motion.div)`
+const TextSection = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 `;
 
 const RestaurantName = styled(motion.h1)`
   font-family: ${({ theme }) => theme.fonts.display};
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  color: white;
+  color: #ffffff;
   margin: 0;
-  text-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(45deg, #ffffff, #22c55e, #ffffff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ${textGlow} 3s ease-in-out infinite;
   position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #22c55e, transparent);
+    border-radius: 2px;
+  }
+`;
+
+const LoadingText = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: ${({ theme }) => theme.fonts.body};
+  font-size: 1.2rem;
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+`;
+
+const ProgressSection = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+`;
+
+const ProgressTrack = styled.div`
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
   overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(10px);
+`;
+
+const ProgressFill = styled(motion.div)`
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a, #22c55e, #10b981);
+  border-radius: 4px;
+  position: relative;
   
   &::after {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.4),
-      transparent
-    );
-    animation: ${shimmer} 2s infinite;
-    animation-delay: 1s;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: ${liquidWave} 2s ease-in-out infinite;
   }
 `;
 
-const LoadingMessage = styled(motion.p)`
+const ProgressText = styled(motion.div)`
+  color: rgba(255, 255, 255, 0.6);
   font-family: ${({ theme }) => theme.fonts.body};
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
 `;
 
-const LoadingSubtext = styled(motion.p)`
-  font-family: ${({ theme }) => theme.fonts.body};
-  font-size: 1rem;
-  font-weight: ${({ theme }) => theme.fontWeights.normal};
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-`;
-
-const DotsContainer = styled(motion.div)`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-`;
-
-const Dot = styled(motion.div)<{ $delay: number }>`
-  width: 12px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  animation: ${pulse} 1.5s ease-in-out infinite;
-  animation-delay: ${({ $delay }) => $delay}s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-`;
-
-const ProgressContainer = styled(motion.div)`
-  width: 280px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const ProgressBar = styled(motion.div)`
-  height: 100%;
-  background: linear-gradient(90deg, 
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(255, 255, 255, 0.8) 100%
-  );
-  border-radius: 3px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-`;
-
-const FloatingParticles = styled.div`
+const FloatingElements = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -241,153 +246,185 @@ const FloatingParticles = styled.div`
   overflow: hidden;
 `;
 
-const Particle = styled(motion.div)<{ $size: number; $left: number; $delay: number }>`
+const FloatingElement = styled(motion.div)<{ $left: number; $size: number }>`
   position: absolute;
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
   left: ${({ $left }) => $left}%;
   top: 100%;
+  width: ${({ $size }) => $size}px;
+  height: ${({ $size }) => $size}px;
+  background: linear-gradient(45deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.3));
+  border-radius: 50%;
   backdrop-filter: blur(2px);
+`;
+
+const LoadingDots = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const LoadingDot = styled(motion.div)<{ $delay: number }>`
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
 `;
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ restaurantName }) => {
   const [progress, setProgress] = useState(0);
-  const [currentMessage, setCurrentMessage] = useState(0);
+  const [loadingStep, setLoadingStep] = useState(0);
 
-  const messages = [
-    "Preparing your culinary journey...",
-    "Loading delicious menu items...",
-    "Setting up your dining experience...",
-    "Almost ready to serve you!"
+  const loadingSteps = [
+    "Initializing kitchen...",
+    "Preparing ingredients...",
+    "Heating up the stove...",
+    "Plating your experience...",
+    "Ready to serve!"
   ];
 
   useEffect(() => {
     // Progress animation
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 100) {
+        const newProgress = prev + 1.5;
+        if (newProgress >= 100) {
           clearInterval(progressInterval);
           return 100;
         }
-        return prev + 2;
+        return newProgress;
       });
-    }, 30);
+    }, 45);
 
-    // Message rotation
-    const messageInterval = setInterval(() => {
-      setCurrentMessage(prev => (prev + 1) % messages.length);
-    }, 1500);
+    // Loading step animation
+    const stepInterval = setInterval(() => {
+      setLoadingStep(prev => {
+        if (prev < loadingSteps.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 600);
 
     return () => {
       clearInterval(progressInterval);
-      clearInterval(messageInterval);
+      clearInterval(stepInterval);
     };
   }, []);
 
-  // Generate particles
-  const particles = Array.from({ length: 20 }, (_, i) => ({
+  // Generate floating elements
+  const floatingElements = Array.from({ length: 15 }, (_, i) => ({
     id: i,
-    size: Math.random() * 6 + 2,
     left: Math.random() * 100,
+    size: Math.random() * 20 + 10,
     delay: Math.random() * 3,
-    duration: Math.random() * 3 + 4,
+    duration: Math.random() * 4 + 6,
   }));
 
   return (
     <LoadingContainer>
-      <FloatingParticles>
-        {particles.map((particle) => (
-          <Particle
-            key={particle.id}
-            $size={particle.size}
-            $left={particle.left}
-            $delay={particle.delay}
+      <FloatingElements>
+        {floatingElements.map((element) => (
+          <FloatingElement
+            key={element.id}
+            $left={element.left}
+            $size={element.size}
             animate={{
               y: [-100, -window.innerHeight - 100],
-              opacity: [0, 0.6, 0],
+              opacity: [0, 0.4, 0],
+              scale: [0.5, 1, 0.5],
             }}
             transition={{
-              duration: particle.duration,
+              duration: element.duration,
               repeat: Infinity,
-              delay: particle.delay,
+              delay: element.delay,
               ease: "linear",
             }}
           />
         ))}
-      </FloatingParticles>
+      </FloatingElements>
 
       <LoadingContent
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
-        <LogoContainer
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
+        <LogoSection
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <LogoBackground />
-          <LoadingRings>
-            <Ring $delay={0} $size={140} />
-            <Ring $delay={0.3} $size={160} />
-            <Ring $delay={0.6} $size={180} />
-          </LoadingRings>
-          <LogoIcon>🍽️</LogoIcon>
-        </LogoContainer>
+          <OrbitingDots>
+            {[0, 1, 2, 3].map((index) => (
+              <OrbitDot
+                key={index}
+                $delay={index * 0.75}
+                $size={12}
+              />
+            ))}
+          </OrbitingDots>
+          
+          <MorphingShape>
+            <LogoIcon>🍽️</LogoIcon>
+          </MorphingShape>
+        </LogoSection>
 
-        <TextContainer>
-          <RestaurantName
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            {restaurantName}
-          </RestaurantName>
-
-          <AnimatePresence mode="wait">
-            <LoadingMessage
-              key={currentMessage}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              {messages[currentMessage]}
-            </LoadingMessage>
-          </AnimatePresence>
-
-          <LoadingSubtext
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            Premium Dining Experience
-          </LoadingSubtext>
-        </TextContainer>
-
-        <ProgressContainer
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 1 }}
+        <TextSection
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
         >
-          <ProgressBar
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          />
-        </ProgressContainer>
+          <RestaurantName>{restaurantName}</RestaurantName>
+          
+          <LoadingText>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={loadingStep}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+              >
+                {loadingSteps[loadingStep]}
+              </motion.span>
+            </AnimatePresence>
+            
+            <LoadingDots>
+              {[0, 1, 2].map((index) => (
+                <LoadingDot
+                  key={index}
+                  $delay={index * 0.2}
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: index * 0.2,
+                  }}
+                />
+              ))}
+            </LoadingDots>
+          </LoadingText>
+        </TextSection>
 
-        <DotsContainer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+        <ProgressSection
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
         >
-          {[0, 1, 2].map((index) => (
-            <Dot key={index} $delay={index * 0.2} />
-          ))}
-        </DotsContainer>
+          <ProgressTrack>
+            <ProgressFill
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            />
+          </ProgressTrack>
+          
+          <ProgressText>
+            {Math.round(progress)}% Complete
+          </ProgressText>
+        </ProgressSection>
       </LoadingContent>
     </LoadingContainer>
   );

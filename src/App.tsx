@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import MenuGrid from './components/MenuGrid';
 import MobileNav from './components/MobileNav';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Firebase services
 import {
@@ -29,7 +30,6 @@ interface MenuItem {
   description?: string;
   isVeg: boolean;
   isPopular?: boolean;
-  rating?: number;
   prepTime?: string;
 }
 
@@ -125,10 +125,10 @@ function App() {
         console.error('Error loading Firebase data:', error);
         setRestaurantInfo(fallbackRestaurantInfo);
       } finally {
-        // Quick loading - no unnecessary delays
+        // Extended loading to see the new beautiful loading screen
         setTimeout(() => {
           setIsLoading(false);
-        }, 800);
+        }, 3000);
       }
     };
 
@@ -170,52 +170,7 @@ function App() {
     return (
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <motion.div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999
-          }}
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            style={{
-              textAlign: 'center',
-              color: 'white'
-            }}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              style={{
-                width: 60,
-                height: 60,
-                border: '4px solid rgba(255,255,255,0.3)',
-                borderTop: '4px solid white',
-                borderRadius: '50%',
-                margin: '0 auto 20px',
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            />
-            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>
-              {restaurantInfo.name}
-            </h2>
-            <p style={{ margin: '8px 0 0', opacity: 0.8 }}>
-              Loading delicious menu...
-            </p>
-          </motion.div>
-        </motion.div>
+        <LoadingSpinner restaurantName={restaurantInfo.name} />
       </ThemeProvider>
     );
   }
