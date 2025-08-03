@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, MessageCircle, ArrowUp, ShoppingCart, Heart, Share2 } from 'lucide-react';
+import { Phone, MessageCircle, ArrowUp } from 'lucide-react';
 
 interface RestaurantInfo {
   name: string;
@@ -41,19 +41,19 @@ const ActionButton = styled(motion.button)<{ $variant?: 'primary' | 'secondary' 
   border-radius: ${({ theme }) => theme.borderRadius.full};
   border: none;
   cursor: pointer;
-  box-shadow: ${({ theme }) => theme.shadows.floating};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
   transition: ${({ theme }) => theme.transitions.normal};
   
   ${({ $variant, theme }) => {
     switch ($variant) {
       case 'primary':
         return `
-          background: ${theme.gradients.primary};
+          background: ${theme.colors.primary};
           color: ${theme.colors.white};
         `;
       case 'accent':
         return `
-          background: ${theme.gradients.accent};
+          background: ${theme.colors.accent};
           color: ${theme.colors.white};
         `;
       default:
@@ -76,67 +76,24 @@ const ActionButton = styled(motion.button)<{ $variant?: 'primary' | 'secondary' 
   }
 `;
 
-const MobileActionBar = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.colors.surface};
-  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
-  padding: ${({ theme }) => theme.spacing[3]};
-  box-shadow: ${({ theme }) => theme.shadows.floating};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  backdrop-filter: blur(20px);
-`;
-
-const MobileActionButton = styled(motion.button)<{ $variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  border: none;
-  cursor: pointer;
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  ${({ $variant, theme }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
-          background: ${theme.gradients.primary};
-          color: ${theme.colors.white};
-        `;
-      default:
-        return `
-          background: ${theme.colors.backgroundAlt};
-          color: ${theme.colors.text};
-        `;
-    }
-  }}
-  
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
 const CallButton = styled(motion.a)`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
-  background: ${({ theme }) => theme.gradients.primary};
+  background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.white};
   border-radius: ${({ theme }) => theme.borderRadius.full};
   text-decoration: none;
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   font-size: ${({ theme }) => theme.fontSizes.base};
-  box-shadow: ${({ theme }) => theme.shadows.floating};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
   transition: ${({ theme }) => theme.transitions.normal};
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: ${({ theme }) => theme.shadows.xl};
+    background: ${({ theme }) => theme.colors.primaryDark};
   }
   
   svg {
@@ -146,33 +103,12 @@ const CallButton = styled(motion.a)`
 `;
 
 const ScrollToTopButton = styled(ActionButton)`
-  ${({ theme }) => `
-    background: ${theme.gradients.accent};
-    color: ${theme.colors.white};
-  `}
-`;
-
-const CartBadge = styled.div`
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  background: ${({ theme }) => theme.colors.error};
+  background: ${({ theme }) => theme.colors.accent};
   color: ${({ theme }) => theme.colors.white};
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  border: 2px solid ${({ theme }) => theme.colors.surface};
 `;
 
 const QuickActions: React.FC<QuickActionsProps> = ({ restaurantInfo, isMobile }) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [cartItems, setCartItems] = useState(0);
-  const [favorites, setFavorites] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -202,66 +138,16 @@ const QuickActions: React.FC<QuickActionsProps> = ({ restaurantInfo, isMobile })
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: restaurantInfo.name,
-          text: `Check out ${restaurantInfo.name} - Amazing Mexican food!`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      // Fallback to copying URL
-      navigator.clipboard.writeText(window.location.href);
-      // You could show a toast notification here
-    }
-  };
-
   if (isMobile) {
     return (
       <ActionsContainer $isMobile={true}>
-        <MobileActionBar
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+        <ActionButton
+          onClick={handleWhatsApp}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
-          <MobileActionButton
-            onClick={handleShare}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Share2 />
-          </MobileActionButton>
-          
-          <MobileActionButton
-            style={{ position: 'relative' }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Heart />
-            {favorites > 0 && <CartBadge>{favorites}</CartBadge>}
-          </MobileActionButton>
-          
-          <MobileActionButton
-            style={{ position: 'relative' }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ShoppingCart />
-            {cartItems > 0 && <CartBadge>{cartItems}</CartBadge>}
-          </MobileActionButton>
-          
-          <MobileActionButton
-            onClick={handleWhatsApp}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <MessageCircle />
-          </MobileActionButton>
-        </MobileActionBar>
+          <MessageCircle />
+        </ActionButton>
 
         <CallButton
           href={`tel:${restaurantInfo.phone}`}
@@ -296,43 +182,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ restaurantInfo, isMobile })
       </AnimatePresence>
 
       <ActionButton
-        onClick={handleShare}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Share2 />
-      </ActionButton>
-
-      <ActionButton
-        style={{ position: 'relative' }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Heart />
-        {favorites > 0 && <CartBadge>{favorites}</CartBadge>}
-      </ActionButton>
-
-      <ActionButton
-        style={{ position: 'relative' }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <ShoppingCart />
-        {cartItems > 0 && <CartBadge>{cartItems}</CartBadge>}
-      </ActionButton>
-
-      <ActionButton
-        $variant="accent"
         onClick={handleWhatsApp}
+        $variant="accent"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.6 }}
