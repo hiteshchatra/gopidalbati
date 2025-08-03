@@ -206,25 +206,25 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[4]};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
   background: ${({ theme }) => theme.colors.surface};
   border: 2px solid ${({ $isActive, theme }) => 
     $isActive ? theme.colors.primary : theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
-  transition: ${({ theme }) => theme.transitions.normal};
+  transition: all 0.2s ease;
   text-align: left;
   box-shadow: ${({ $isActive, theme }) => 
     $isActive ? theme.shadows.md : theme.shadows.sm};
+  overflow: hidden;
   
   &:hover {
     background: ${({ theme }) => theme.colors.surfaceHover};
-    transform: translateX(4px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
+    transform: translateX(2px);
+    box-shadow: ${({ theme }) => theme.shadows.md};
     border-color: ${({ theme }) => theme.colors.primary};
   }
   
@@ -233,36 +233,43 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   }
 `;
 
-const CategoryLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-  flex: 1;
-`;
-
 const CategoryIcon = styled.div<{ $isActive: boolean }>`
-  font-size: ${({ theme }) => theme.fontSizes['2xl']};
-  min-width: 40px;
-  height: 40px;
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  min-width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: ${({ $isActive, theme }) => 
     $isActive ? 'rgba(22, 163, 74, 0.2)' : 'rgba(22, 163, 74, 0.1)'};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  transition: ${({ theme }) => theme.transitions.normal};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+`;
+
+const CategoryContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  gap: ${({ theme }) => theme.spacing[2]};
 `;
 
 const CategoryInfo = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const CategoryName = styled.div`
   font-family: ${({ theme }) => theme.fonts.heading};
-  font-size: ${({ theme }) => theme.fontSizes.base};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   line-height: 1.3;
   color: ${({ theme }) => theme.colors.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const CategoryCount = styled.div<{ $isActive: boolean }>`
@@ -275,10 +282,10 @@ const CategoryCount = styled.div<{ $isActive: boolean }>`
     $isActive ? theme.colors.white : theme.colors.primary};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  display: inline-block;
-  min-width: 28px;
+  min-width: 24px;
   text-align: center;
-  transition: ${({ theme }) => theme.transitions.normal};
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 `;
 
 const ContactInfo = styled.div`
@@ -329,15 +336,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <SidebarContainer
-      initial={{ x: -320 }}
-      animate={{ x: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      initial={{ x: -320, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     >
       <SidebarContent>
         <RestaurantHeader
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
         >
           <RestaurantLogo>
             {restaurantInfo.logo && (
@@ -376,21 +383,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => onCategoryChange(category.id)}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index + 0.3 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: 0.2 + (index * 0.05),
+                  ease: [0.4, 0, 0.2, 1]
+                }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
               >
-                <CategoryLeft>
-                  <CategoryIcon $isActive={activeCategory === category.id}>
-                    {category.icon}
-                  </CategoryIcon>
+                <CategoryIcon $isActive={activeCategory === category.id}>
+                  {category.icon}
+                </CategoryIcon>
+                <CategoryContent>
                   <CategoryInfo>
                     <CategoryName>{category.name}</CategoryName>
                   </CategoryInfo>
-                </CategoryLeft>
-                <CategoryCount $isActive={activeCategory === category.id}>
-                  {category.items?.length || category.items.length}
-                </CategoryCount>
+                  <CategoryCount $isActive={activeCategory === category.id}>
+                    {category.items?.length || category.items.length}
+                  </CategoryCount>
+                </CategoryContent>
               </CategoryItem>
             ))}
           </CategoriesList>

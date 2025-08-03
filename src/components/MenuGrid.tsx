@@ -115,7 +115,7 @@ const ViewButton = styled(motion.button)<{ $isActive: boolean }>`
   color: ${({ $isActive, theme }) => 
     $isActive ? theme.colors.white : theme.colors.textMuted};
   cursor: pointer;
-  transition: ${({ theme }) => theme.transitions.normal};
+  transition: all 0.2s ease;
   
   &:hover {
     background: ${({ $isActive, theme }) => 
@@ -145,7 +145,7 @@ const SortButton = styled(motion.button)<{ $isOpen: boolean }>`
   font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  transition: ${({ theme }) => theme.transitions.normal};
+  transition: all 0.2s ease;
   min-width: 120px;
   box-shadow: ${({ theme }) => theme.shadows.sm};
   
@@ -157,7 +157,7 @@ const SortButton = styled(motion.button)<{ $isOpen: boolean }>`
   svg {
     width: 16px;
     height: 16px;
-    transition: ${({ theme }) => theme.transitions.fast};
+    transition: transform 0.2s ease;
     transform: ${({ $isOpen }) => $isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
   }
 `;
@@ -190,7 +190,7 @@ const SortOption = styled(motion.button)`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   text-align: left;
-  transition: ${({ theme }) => theme.transitions.fast};
+  transition: all 0.15s ease;
   
   &:hover {
     background: ${({ theme }) => theme.colors.surfaceHover};
@@ -239,7 +239,7 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.shadows.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  transition: ${({ theme }) => theme.transitions.normal};
+  transition: all 0.3s ease;
   cursor: pointer;
   
   ${({ $viewMode }) => $viewMode === 'list' ? `
@@ -250,7 +250,7 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   ` : ''}
   
   &:hover {
-    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(4px)' : 'translateY(-4px)'};
+    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(2px)' : 'translateY(-2px)'};
     box-shadow: ${({ theme }) => theme.shadows.md};
     border-color: ${({ theme }) => theme.colors.primary};
   }
@@ -542,9 +542,9 @@ const MenuGrid: React.FC<MenuGridProps> = ({
     return (
       <GridContainer>
         <EmptyState
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="emoji">🔍</div>
           <h3>No items found</h3>
@@ -562,9 +562,9 @@ const MenuGrid: React.FC<MenuGridProps> = ({
   return (
     <GridContainer>
       <GridHeader
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
         <HeaderLeft>
           <HeaderTitle>{getHeaderTitle()}</HeaderTitle>
@@ -576,16 +576,16 @@ const MenuGrid: React.FC<MenuGridProps> = ({
             <ViewButton
               $isActive={viewMode === 'grid'}
               onClick={() => onViewModeChange('grid')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Grid />
             </ViewButton>
             <ViewButton
               $isActive={viewMode === 'list'}
               onClick={() => onViewModeChange('list')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <List />
             </ViewButton>
@@ -595,8 +595,8 @@ const MenuGrid: React.FC<MenuGridProps> = ({
             <SortButton
               $isOpen={isSortOpen}
               onClick={() => setIsSortOpen(!isSortOpen)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
             >
               <SortAsc />
               <span>{getCurrentSortLabel()}</span>
@@ -606,10 +606,10 @@ const MenuGrid: React.FC<MenuGridProps> = ({
             <AnimatePresence>
               {isSortOpen && (
                 <SortDropdown
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
                 >
                   {sortOptions.map((option) => (
                     <SortOption
@@ -618,7 +618,7 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                         setSortBy(option.value as SortOption);
                         setIsSortOpen(false);
                       }}
-                      whileHover={{ x: 4 }}
+                      whileHover={{ x: 2 }}
                     >
                       {option.label}
                     </SortOption>
@@ -634,17 +634,24 @@ const MenuGrid: React.FC<MenuGridProps> = ({
         $viewMode={viewMode}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
       >
         <AnimatePresence mode="wait">
           {sortedItems.map((item, index) => (
             <ItemCard
               key={item.id}
               $viewMode={viewMode}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.02 }}
-              whileHover={{ scale: viewMode === 'grid' ? 1.02 : 1.01 }}
+              transition={{ 
+                duration: 0.3, 
+                delay: index * 0.03,
+                ease: [0.4, 0, 0.2, 1]
+              }}
+              whileHover={{ 
+                scale: viewMode === 'grid' ? 1.01 : 1.005,
+                transition: { duration: 0.2 }
+              }}
               layout
             >
               <ItemImage $image={item.image} $viewMode={viewMode}>
