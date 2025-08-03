@@ -54,9 +54,9 @@ interface RestaurantInfo {
 
 // Fallback restaurant info
 const fallbackRestaurantInfo: RestaurantInfo = {
-  name: "Testy sizzler",
-  tagline: "Mexican restaurant",
-  tagline2: "Mexican restaurant",
+  name: "Gopi Daal Bati",
+  tagline: "Daal Bati restaurant",
+  tagline2: "Daal Bati restaurant",
   logo: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=200",
   heroImage: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200",
   phone: "+91 63765 35219",
