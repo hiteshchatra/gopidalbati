@@ -8,7 +8,6 @@ import { GlobalStyles } from './styles/GlobalStyles';
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import MenuGrid from './components/MenuGrid';
-import QuickActions from './components/QuickActions';
 import MobileNav from './components/MobileNav';
 
 // Firebase services
@@ -277,11 +276,6 @@ function App() {
             </MainContent>
           </>
         )}
-
-        <QuickActions
-          restaurantInfo={restaurantInfo}
-          isMobile={isMobile}
-        />
       </div>
     </ThemeProvider>
   );
