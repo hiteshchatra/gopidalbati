@@ -125,10 +125,10 @@ function App() {
         console.error('Error loading Firebase data:', error);
         setRestaurantInfo(fallbackRestaurantInfo);
       } finally {
-        // Extended loading to see the new beautiful loading screen
+        // Quick loading for production
         setTimeout(() => {
           setIsLoading(false);
-        }, 3000);
+        }, 800);
       }
     };
 
