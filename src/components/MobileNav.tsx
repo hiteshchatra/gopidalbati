@@ -167,6 +167,10 @@ const SearchIcon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   color: ${({ theme }) => theme.colors.textMuted};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   
   svg {
     width: 20px;
