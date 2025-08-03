@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { theme } from '../styles/theme';
+import { Filter, ArrowUp, X } from 'lucide-react';
 
 interface FloatingFilterProps {
   categories: Array<{
@@ -15,67 +15,86 @@ interface FloatingFilterProps {
 
 const FloatingContainer = styled(motion.div)`
   position: fixed;
-  bottom: ${theme.spacing.lg};
-  right: ${theme.spacing.md};
-  z-index: ${theme.zIndex.fixed};
+  bottom: ${({ theme }) => theme.spacing.xl};
+  right: ${({ theme }) => theme.spacing.lg};
+  z-index: ${({ theme }) => theme.zIndex.fixed};
   
-  @media (min-width: ${theme.breakpoints.md}) {
-    right: ${theme.spacing.lg};
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    right: ${({ theme }) => theme.spacing.md};
+    bottom: ${({ theme }) => theme.spacing.lg};
   }
 `;
 
-const FilterButton = styled(motion.button)<{ isActive?: boolean }>`
-  width: 56px;
-  height: 56px;
-  border-radius: ${theme.borderRadius.full};
+const FilterButton = styled(motion.button)<{ $isActive?: boolean }>`
+  width: 64px;
+  height: 64px;
+  border-radius: ${({ theme }) => theme.borderRadius.full};
   border: none;
-  background: ${props => props.isActive ? theme.gradients.primary : theme.colors.surface};
-  color: ${props => props.isActive ? theme.colors.white : theme.colors.text};
-  box-shadow: ${theme.shadows.lg};
+  background: ${({ $isActive, theme }) => 
+    $isActive ? theme.gradients.primary : theme.gradients.card};
+  color: ${({ $isActive, theme }) => 
+    $isActive ? theme.colors.white : theme.colors.primary};
+  box-shadow: ${({ theme }) => theme.shadows.cardHover};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${theme.fontSizes.lg};
-  transition: ${theme.transitions.fast};
-  backdrop-filter: blur(10px);
-  border: 2px solid ${props => props.isActive ? 'transparent' : 'rgba(229, 57, 53, 0.1)'};
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  transition: ${({ theme }) => theme.transitions.normal};
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid ${({ $isActive, theme }) => 
+    $isActive ? 'transparent' : 'rgba(99, 102, 241, 0.2)'};
   
   &:hover {
     transform: scale(1.05);
-    box-shadow: ${theme.shadows.xl};
+    box-shadow: ${({ theme }) => theme.shadows.glow};
   }
   
   &:active {
     transform: scale(0.95);
   }
+  
+  svg {
+    width: 28px;
+    height: 28px;
+  }
 `;
 
 const FilterMenu = styled(motion.div)`
   position: absolute;
-  bottom: 70px;
+  bottom: 80px;
   right: 0;
-  background: ${theme.colors.surface};
-  border-radius: ${theme.borderRadius.xl};
-  box-shadow: ${theme.shadows.xl};
-  padding: ${theme.spacing.md};
-  min-width: 200px;
-  max-width: 280px;
+  background: ${({ theme }) => theme.gradients.card};
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(229, 57, 53, 0.1);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  box-shadow: ${({ theme }) => theme.shadows.xl};
+  padding: ${({ theme }) => theme.spacing.lg};
+  min-width: 280px;
+  max-width: 320px;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    right: -100px;
+    min-width: 260px;
+  }
 `;
 
 const FilterTitle = styled.h3`
-  font-family: ${theme.fonts.heading};
-  font-size: ${theme.fontSizes.base};
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.text};
-  margin-bottom: ${theme.spacing.md};
+  font-family: ${({ theme }) => theme.fonts.heading};
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  background: ${({ theme }) => theme.gradients.text};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
   text-align: center;
 `;
 
 const FilterSection = styled.div`
-  margin-bottom: ${theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
   
   &:last-child {
     margin-bottom: 0;
@@ -83,47 +102,66 @@ const FilterSection = styled.div`
 `;
 
 const FilterSectionTitle = styled.h4`
-  font-family: ${theme.fonts.accent};
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.semibold};
-  color: ${theme.colors.textLight};
-  margin-bottom: ${theme.spacing.sm};
+  font-family: ${({ theme }) => theme.fonts.accent};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.textLight};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
   text-transform: uppercase;
   letter-spacing: 1px;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: ${({ theme }) => theme.gradients.primary};
+    border-radius: ${({ theme }) => theme.borderRadius.full};
+  }
 `;
 
 const FilterOptions = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacing.sm};
 `;
 
-const FilterOption = styled(motion.button)<{ isActive?: boolean }>`
+const FilterOption = styled(motion.button)<{ $isActive?: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.sm};
-  padding: ${theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.md};
   border: none;
-  border-radius: ${theme.borderRadius.md};
-  background: ${props => props.isActive ? 'rgba(229, 57, 53, 0.1)' : 'transparent'};
-  color: ${props => props.isActive ? theme.colors.primary : theme.colors.text};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ $isActive, theme }) => 
+    $isActive ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.05)'};
+  color: ${({ $isActive, theme }) => 
+    $isActive ? theme.colors.primary : theme.colors.textLight};
   cursor: pointer;
-  transition: ${theme.transitions.fast};
+  transition: ${({ theme }) => theme.transitions.normal};
   text-align: left;
   width: 100%;
-  font-family: ${theme.fonts.accent};
-  font-size: ${theme.fontSizes.sm};
-  font-weight: ${theme.fontWeights.medium};
+  font-family: ${({ theme }) => theme.fonts.body};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  border: 1px solid ${({ $isActive, theme }) => 
+    $isActive ? 'rgba(99, 102, 241, 0.3)' : 'transparent'};
   
   &:hover {
-    background: ${props => props.isActive ? 'rgba(229, 57, 53, 0.15)' : 'rgba(229, 57, 53, 0.05)'};
+    background: ${({ $isActive, theme }) => 
+      $isActive ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.1)'};
+    transform: translateX(3px);
   }
 `;
 
 const FilterIcon = styled.span`
-  font-size: ${theme.fontSizes.base};
-  min-width: 20px;
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  min-width: 24px;
   text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 `;
 
 const FilterText = styled.span`
@@ -131,75 +169,94 @@ const FilterText = styled.span`
 `;
 
 const CategoryList = styled.div`
-  max-height: 200px;
+  max-height: 240px;
   overflow-y: auto;
   
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   
   &::-webkit-scrollbar-track {
-    background: ${theme.colors.backgroundAlt};
-    border-radius: 2px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: ${({ theme }) => theme.borderRadius.full};
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${theme.colors.primary};
-    border-radius: 2px;
+    background: ${({ theme }) => theme.gradients.primary};
+    border-radius: ${({ theme }) => theme.borderRadius.full};
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.primaryDark};
   }
 `;
 
-const CategoryOption = styled(motion.button)<{ isActive?: boolean }>`
+const CategoryOption = styled(motion.button)<{ $isActive?: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.sm};
-  padding: ${theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.md};
   border: none;
-  border-radius: ${theme.borderRadius.md};
-  background: ${props => props.isActive ? 'rgba(229, 57, 53, 0.1)' : 'transparent'};
-  color: ${props => props.isActive ? theme.colors.primary : theme.colors.text};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ $isActive, theme }) => 
+    $isActive ? 'rgba(99, 102, 241, 0.2)' : 'transparent'};
+  color: ${({ $isActive, theme }) => 
+    $isActive ? theme.colors.primary : theme.colors.textLight};
   cursor: pointer;
-  transition: ${theme.transitions.fast};
+  transition: ${({ theme }) => theme.transitions.normal};
   text-align: left;
   width: 100%;
-  font-family: ${theme.fonts.accent};
-  font-size: ${theme.fontSizes.sm};
-  font-weight: ${theme.fontWeights.medium};
+  font-family: ${({ theme }) => theme.fonts.body};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  border: 1px solid ${({ $isActive, theme }) => 
+    $isActive ? 'rgba(99, 102, 241, 0.3)' : 'transparent'};
   
   &:hover {
-    background: ${props => props.isActive ? 'rgba(229, 57, 53, 0.15)' : 'rgba(229, 57, 53, 0.05)'};
+    background: ${({ $isActive, theme }) => 
+      $isActive ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.1)'};
+    transform: translateX(3px);
   }
 `;
 
 const ScrollToTopButton = styled(motion.button)`
   position: fixed;
-  bottom: ${theme.spacing.lg};
-  left: ${theme.spacing.md};
-  width: 48px;
-  height: 48px;
-  border-radius: ${theme.borderRadius.full};
+  bottom: ${({ theme }) => theme.spacing.xl};
+  left: ${({ theme }) => theme.spacing.lg};
+  width: 56px;
+  height: 56px;
+  border-radius: ${({ theme }) => theme.borderRadius.full};
   border: none;
-  background: ${theme.colors.accent};
-  color: ${theme.colors.white};
-  box-shadow: ${theme.shadows.lg};
+  background: ${({ theme }) => theme.gradients.accent};
+  color: ${({ theme }) => theme.colors.white};
+  box-shadow: ${({ theme }) => theme.shadows.cardHover};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: ${theme.zIndex.fixed};
-  transition: ${theme.transitions.fast};
+  z-index: ${({ theme }) => theme.zIndex.fixed};
+  transition: ${({ theme }) => theme.transitions.normal};
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   
   &:hover {
     transform: scale(1.05);
-    box-shadow: ${theme.shadows.xl};
+    box-shadow: ${({ theme }) => theme.shadows.glow};
   }
   
   &:active {
     transform: scale(0.95);
   }
   
-  @media (min-width: ${theme.breakpoints.md}) {
-    left: ${theme.spacing.lg};
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    left: ${({ theme }) => theme.spacing.md};
+    bottom: ${({ theme }) => theme.spacing.lg};
   }
 `;
 
@@ -213,7 +270,7 @@ const FloatingFilter: React.FC<FloatingFilterProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
+      setShowScrollTop(window.scrollY > 400);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -231,7 +288,7 @@ const FloatingFilter: React.FC<FloatingFilterProps> = ({
     const element = document.getElementById(categoryId);
     if (element) {
       const headerHeight = 80;
-      const elementPosition = element.offsetTop - headerHeight;
+      const elementPosition = element.offsetTop - headerHeight - 20;
       window.scrollTo({
         top: elementPosition,
         behavior: 'smooth'
@@ -256,20 +313,20 @@ const FloatingFilter: React.FC<FloatingFilterProps> = ({
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
             >
               <FilterTitle>Filter & Navigate</FilterTitle>
               
               <FilterSection>
-                <FilterSectionTitle>Diet</FilterSectionTitle>
+                <FilterSectionTitle>Diet Preferences</FilterSectionTitle>
                 <FilterOptions>
                   <FilterOption
-                    isActive={activeFilter === 'all'}
+                    $isActive={activeFilter === 'all'}
                     onClick={() => {
                       onFilterChange('all');
                       setIsMenuOpen(false);
                     }}
-                    whileHover={{ x: 2 }}
+                    whileHover={{ x: 3 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <FilterIcon>🍽️</FilterIcon>
@@ -277,29 +334,29 @@ const FloatingFilter: React.FC<FloatingFilterProps> = ({
                   </FilterOption>
                   
                   <FilterOption
-                    isActive={activeFilter === 'veg'}
+                    $isActive={activeFilter === 'veg'}
                     onClick={() => {
                       onFilterChange('veg');
                       setIsMenuOpen(false);
                     }}
-                    whileHover={{ x: 2 }}
+                    whileHover={{ x: 3 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <FilterIcon>🥬</FilterIcon>
-                    <FilterText>Veg Only</FilterText>
+                    <FilterText>Vegetarian Only</FilterText>
                   </FilterOption>
                 </FilterOptions>
               </FilterSection>
 
               <FilterSection>
-                <FilterSectionTitle>Categories</FilterSectionTitle>
+                <FilterSectionTitle>Menu Categories</FilterSectionTitle>
                 <CategoryList>
                   {categories.map((category) => (
                     <CategoryOption
                       key={category.id}
-                      isActive={activeFilter === category.id}
+                      $isActive={activeFilter === category.id}
                       onClick={() => scrollToCategory(category.id)}
-                      whileHover={{ x: 2 }}
+                      whileHover={{ x: 3 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <FilterIcon>{category.icon || '🍽️'}</FilterIcon>
@@ -313,29 +370,27 @@ const FloatingFilter: React.FC<FloatingFilterProps> = ({
         </AnimatePresence>
 
         <FilterButton
-          isActive={isMenuOpen}
+          $isActive={isMenuOpen}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          animate={{ rotate: isMenuOpen ? 45 : 0 }}
+          animate={{ rotate: isMenuOpen ? 180 : 0 }}
         >
-          {isMenuOpen ? '✕' : getFilterIcon()}
+          {isMenuOpen ? <X /> : <Filter />}
         </FilterButton>
       </FloatingContainer>
 
       <AnimatePresence>
         {showScrollTop && (
           <ScrollToTopButton
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
             onClick={scrollToTop}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 15l-6-6-6 6"/>
-            </svg>
+            <ArrowUp />
           </ScrollToTopButton>
         )}
       </AnimatePresence>

@@ -1,10 +1,9 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { theme } from '../styles/theme';
 
 interface LoadingSpinnerProps {
-  restaurantName?: string;
+  restaurantName: string;
 }
 
 const LoadingContainer = styled.div`
@@ -13,52 +12,38 @@ const LoadingContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: ${theme.gradients.hero};
+  background: ${({ theme }) => theme.colors.background};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: ${theme.zIndex.modal};
-  overflow: hidden;
-  padding: ${theme.spacing.lg};
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  z-index: ${({ theme }) => theme.zIndex.modal};
   
   &::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(229, 57, 53, 0.1) 0%, transparent 70%);
-    animation: ${keyframes`
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.1); }
-      100% { transform: rotate(360deg) scale(1); }
-    `} 20s linear infinite;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    animation: backgroundShift 10s ease-in-out infinite;
   }
 `;
 
 const LoadingContent = styled.div`
-  text-align: center;
-  color: ${theme.colors.white};
   position: relative;
-  z-index: 2;
-  max-width: 90vw;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  
-  @media (max-width: ${theme.breakpoints.sm}) {
-    max-width: 95vw;
-    padding: 0 ${theme.spacing.md};
-  }
+  gap: ${({ theme }) => theme.spacing['2xl']};
+  text-align: center;
+  z-index: 1;
 `;
 
-const spin = keyframes`
+const spinAnimation = keyframes`
   0% {
     transform: rotate(0deg);
   }
@@ -67,196 +52,205 @@ const spin = keyframes`
   }
 `;
 
-const pulse = keyframes`
+const pulseAnimation = keyframes`
   0%, 100% {
-    opacity: 1;
     transform: scale(1);
+    opacity: 1;
   }
   50% {
-    opacity: 0.8;
     transform: scale(1.1);
+    opacity: 0.8;
   }
 `;
 
-const bounce = keyframes`
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
+const glowAnimation = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
   }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
   }
 `;
 
 const SpinnerContainer = styled.div`
   position: relative;
-  width: clamp(80px, 15vw, 120px);
-  height: clamp(80px, 15vw, 120px);
-  margin-bottom: clamp(${theme.spacing.xl}, 5vw, ${theme.spacing['3xl']});
-  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+`;
+
+const SpinnerRing = styled.div<{ $delay?: number }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-top: 3px solid ${({ theme }) => theme.colors.primary};
+  border-right: 3px solid ${({ theme }) => theme.colors.primaryLight};
+  border-radius: 50%;
+  animation: ${spinAnimation} 1.5s linear infinite;
+  animation-delay: ${({ $delay }) => $delay || 0}s;
+`;
+
+const SpinnerCore = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: ${({ theme }) => theme.gradients.primary};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ${pulseAnimation} 2s ease-in-out infinite, ${glowAnimation} 3s ease-in-out infinite;
   
-  @media (max-width: ${theme.breakpoints.sm}) {
-    width: clamp(70px, 20vw, 100px);
-    height: clamp(70px, 20vw, 100px);
-    margin-bottom: ${theme.spacing.xl};
+  &::before {
+    content: '🍽️';
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
 `;
 
-const SpinnerRing = styled.div<{ delay?: number; size?: number }>`
-  position: absolute;
-  top: ${props => props.size ? `${(100 - props.size) / 2}%` : '0'};
-  left: ${props => props.size ? `${(100 - props.size) / 2}%` : '0'};
-  width: ${props => props.size ? `${props.size}%` : '100%'};
-  height: ${props => props.size ? `${props.size}%` : '100%'};
-  border: clamp(2px, 0.5vw, 4px) solid transparent;
-  border-top: clamp(2px, 0.5vw, 4px) solid ${theme.colors.white};
-  border-radius: 50%;
-  animation: ${spin} ${props => 1.5 + (props.delay || 0) * 0.5}s linear infinite;
-  animation-delay: ${props => props.delay || 0}s;
-  opacity: ${props => props.delay ? 0.7 - (props.delay * 0.2) : 1};
+const LoadingText = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.md};
 `;
 
-const LoadingTitle = styled(motion.h1)`
-  font-family: ${theme.fonts.heading};
-  font-size: clamp(${theme.fontSizes['2xl']}, 6vw, ${theme.fontSizes['4xl']});
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.white};
-  margin: 0 0 clamp(${theme.spacing.sm}, 2vw, ${theme.spacing.md}) 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  letter-spacing: clamp(1px, 0.2vw, 3px);
-  background: linear-gradient(45deg, #ffffff, #ffcccc, #ffffff);
-  background-size: 200% 200%;
+const RestaurantName = styled(motion.h1)`
+  font-family: ${({ theme }) => theme.fonts.display};
+  font-size: ${({ theme }) => theme.fontSizes['4xl']};
+  font-weight: ${({ theme }) => theme.fontWeights.black};
+  background: ${({ theme }) => theme.gradients.primary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: ${keyframes`
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  `} 3s ease infinite;
-  text-align: center;
-  line-height: 1.2;
-  word-break: break-word;
-  hyphens: auto;
+  margin: 0;
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
   
-  @media (max-width: ${theme.breakpoints.sm}) {
-    font-size: clamp(${theme.fontSizes.xl}, 8vw, ${theme.fontSizes['3xl']});
-    letter-spacing: clamp(0.5px, 0.1vw, 2px);
-    margin-bottom: ${theme.spacing.sm};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes['3xl']};
   }
 `;
 
-const LoadingSubtitle = styled(motion.p)`
-  font-family: ${theme.fonts.accent};
-  font-size: clamp(${theme.fontSizes.sm}, 3.5vw, ${theme.fontSizes.xl});
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 clamp(${theme.spacing.lg}, 4vw, ${theme.spacing['2xl']}) 0;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-  font-weight: ${theme.fontWeights.medium};
-  text-align: center;
-  line-height: 1.4;
-  max-width: 100%;
-  word-break: break-word;
-  hyphens: auto;
-  
-  @media (max-width: ${theme.breakpoints.sm}) {
-    font-size: clamp(${theme.fontSizes.xs}, 4vw, ${theme.fontSizes.lg});
-    margin-bottom: ${theme.spacing.xl};
-    padding: 0 ${theme.spacing.sm};
-  }
+const LoadingMessage = styled(motion.p)`
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  color: ${({ theme }) => theme.colors.textLight};
+  margin: 0;
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+`;
+
+const LoadingSubtext = styled(motion.p)`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
+  margin: 0;
+  font-family: ${({ theme }) => theme.fonts.accent};
+  text-transform: uppercase;
+  letter-spacing: 2px;
 `;
 
 const ProgressBar = styled.div`
-  width: clamp(150px, 50vw, 250px);
-  height: clamp(3px, 0.5vw, 5px);
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: ${theme.borderRadius.full};
+  width: 200px;
+  height: 4px;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: ${({ theme }) => theme.borderRadius.full};
   overflow: hidden;
-  margin: clamp(${theme.spacing.md}, 3vw, ${theme.spacing.xl}) 0;
-  
-  @media (max-width: ${theme.breakpoints.sm}) {
-    width: clamp(120px, 70vw, 200px);
-    height: 3px;
-    margin: ${theme.spacing.md} 0;
-  }
+  position: relative;
 `;
 
 const ProgressFill = styled(motion.div)`
   height: 100%;
-  background: linear-gradient(90deg, ${theme.colors.white}, rgba(255, 255, 255, 0.8), ${theme.colors.white});
-  background-size: 200% 100%;
-  border-radius: ${theme.borderRadius.full};
-  animation: ${keyframes`
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  `} 2s ease-in-out infinite;
+  background: ${({ theme }) => theme.gradients.primary};
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 `;
 
-const LoadingDots = styled.div`
-  display: flex;
-  gap: clamp(${theme.spacing.sm}, 2vw, ${theme.spacing.md});
-  justify-content: center;
-  margin-top: clamp(${theme.spacing.md}, 3vw, ${theme.spacing.lg});
-  align-items: center;
+const FloatingElements = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
 `;
 
-const Dot = styled(motion.div)<{ delay: number }>`
-  width: clamp(8px, 2vw, 14px);
-  height: clamp(8px, 2vw, 14px);
-  background: ${theme.colors.white};
-  border-radius: 50%;
-  animation: ${bounce} 1.4s ease-in-out infinite;
-  animation-delay: ${props => props.delay}s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  flex-shrink: 0;
-  
-  @media (max-width: ${theme.breakpoints.sm}) {
-    width: clamp(6px, 3vw, 10px);
-    height: clamp(6px, 3vw, 10px);
-  }
+const FloatingElement = styled(motion.div)<{ $delay: number; $duration: number }>`
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.3;
+  animation: float ${({ $duration }) => $duration}s ease-in-out infinite;
+  animation-delay: ${({ $delay }) => $delay}s;
 `;
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ restaurantName = 'Restaurant' }) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ restaurantName }) => {
+  const floatingEmojis = ['🌮', '🌯', '🥑', '🌶️', '🧀', '🍅', '🥬', '🌽'];
+
   return (
     <LoadingContainer>
+      <FloatingElements>
+        {floatingEmojis.map((emoji, index) => (
+          <FloatingElement
+            key={index}
+            $delay={index * 0.5}
+            $duration={3 + index * 0.5}
+            style={{
+              left: `${10 + index * 10}%`,
+              top: `${20 + (index % 3) * 20}%`,
+            }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 0.3, y: 0 }}
+            transition={{ delay: index * 0.2 }}
+          >
+            {emoji}
+          </FloatingElement>
+        ))}
+      </FloatingElements>
+
       <LoadingContent>
         <SpinnerContainer>
           <SpinnerRing />
-          <SpinnerRing delay={0.2} size={80} />
-          <SpinnerRing delay={0.4} size={60} />
+          <SpinnerRing $delay={0.3} />
+          <SpinnerRing $delay={0.6} />
+          <SpinnerCore />
         </SpinnerContainer>
 
-        <LoadingTitle
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          {restaurantName}
-        </LoadingTitle>
+        <LoadingText>
+          <RestaurantName
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            {restaurantName}
+          </RestaurantName>
 
-        <LoadingSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-        >
-          Preparing your authentic Mexican experience...
-        </LoadingSubtitle>
+          <LoadingMessage
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            Preparing your culinary journey...
+          </LoadingMessage>
+
+          <LoadingSubtext
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+          >
+            Authentic Mexican Flavors
+          </LoadingSubtext>
+        </LoadingText>
 
         <ProgressBar>
           <ProgressFill
             initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 2, delay: 1, ease: "easeInOut" }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.5, delay: 0.5, ease: 'easeInOut' }}
           />
         </ProgressBar>
-
-        <LoadingDots>
-          <Dot delay={0} />
-          <Dot delay={0.2} />
-          <Dot delay={0.4} />
-        </LoadingDots>
       </LoadingContent>
     </LoadingContainer>
   );

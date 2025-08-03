@@ -1,336 +1,508 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { theme } from '../styles/theme';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Clock, Leaf, Flame, Heart, Plus, Minus, ShoppingCart } from 'lucide-react';
 
-interface MenuItemProps {
-  item: {
-    id: string;
-    name: string;
-    price: string;
-    originalPrice?: string;
-    image?: string;
-    description?: string;
-    isVeg: boolean;
-    isPopular?: boolean;
-    rating?: number;
-    prepTime?: string;
-  };
-  index: number;
+interface MenuItem {
+  id: string;
+  name: string;
+  price: string;
+  originalPrice?: string;
+  image?: string;
+  description?: string;
+  isVeg: boolean;
+  isPopular?: boolean;
+  rating?: number;
+  prepTime?: string;
 }
 
-const ItemContainer = styled(motion.div)`
-  display: flex;
-  gap: ${theme.spacing.md};
-  padding: ${theme.spacing.lg};
-  background: linear-gradient(135deg, ${theme.colors.surface} 0%, rgba(248, 246, 243, 0.8) 100%);
-  transition: ${theme.transitions.normal};
+interface MenuItemCardProps {
+  item: MenuItem;
+  animationDelay?: number;
+}
+
+const CardContainer = styled(motion.div)`
   position: relative;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: ${theme.gradients.primary};
-    transform: scaleY(0);
-    transition: ${theme.transitions.normal};
-    transform-origin: bottom;
-  }
+  background: ${({ theme }) => theme.gradients.card};
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  overflow: hidden;
+  transition: ${({ theme }) => theme.transitions.normal};
+  cursor: pointer;
   
   &:hover {
-    background: linear-gradient(135deg, ${theme.colors.surface} 0%, rgba(229, 57, 53, 0.02) 100%);
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.08),
-      0 4px 12px rgba(229, 57, 53, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    transform: translateY(-2px);
-    
-    &::before {
-      transform: scaleY(1);
-    }
+    transform: translateY(-8px);
+    box-shadow: ${({ theme }) => theme.shadows.cardHover};
+    border-color: rgba(99, 102, 241, 0.4);
   }
   
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:nth-child(even) {
-    background: linear-gradient(135deg, rgba(248, 246, 243, 0.6) 0%, ${theme.colors.surface} 100%);
-    
-    &:hover {
-      background: linear-gradient(135deg, rgba(229, 57, 53, 0.01) 0%, ${theme.colors.surface} 100%);
-    }
-  }
-`;
-
-const ItemImage = styled.div<{ backgroundImage?: string }>`
-  width: 85px;
-  height: 85px;
-  min-width: 85px;
-  border-radius: ${theme.borderRadius.lg};
-  background: ${props => props.backgroundImage 
-    ? `url(${props.backgroundImage})` 
-    : `linear-gradient(135deg, ${theme.colors.surfaceAlt} 0%, ${theme.colors.backgroundAlt} 100%)`};
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${theme.fontSizes.xl};
-  color: ${theme.colors.textMuted};
-  position: relative;
-  overflow: hidden;
-  box-shadow: 
-    0 6px 20px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  
-  &::after {
+  &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(229, 57, 53, 0.1) 0%, transparent 50%);
+    background: ${({ theme }) => theme.gradients.cardHover};
     opacity: 0;
-    transition: ${theme.transitions.normal};
+    transition: ${({ theme }) => theme.transitions.normal};
+    pointer-events: none;
   }
   
-  ${ItemContainer}:hover &::after {
+  &:hover::before {
     opacity: 1;
-  }
-  
-  ${ItemContainer}:hover & {
-    transform: scale(1.05);
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.15),
-      0 4px 12px rgba(229, 57, 53, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
 `;
 
-const ItemContent = styled.div`
-  flex: 1;
+const ImageContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: ${({ theme }) => theme.colors.surfaceAlt};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    height: 180px;
+  }
+`;
+
+const ItemImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: ${({ theme }) => theme.transitions.slow};
+  
+  ${CardContainer}:hover & {
+    transform: scale(1.1);
+  }
+`;
+
+const ImagePlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 85px;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.gradients.primary};
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 3rem;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  
+  &::before {
+    content: '🍽️';
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+`;
+
+const BadgeContainer = styled.div`
+  position: absolute;
+  top: ${({ theme }) => theme.spacing.md};
+  left: ${({ theme }) => theme.spacing.md};
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.sm};
+  z-index: 2;
+`;
+
+const Badge = styled(motion.div)<{ $variant: 'popular' | 'veg' | 'rating' }>`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs};
+  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  ${({ $variant, theme }) => {
+    switch ($variant) {
+      case 'popular':
+        return `
+          background: rgba(245, 158, 11, 0.9);
+          color: ${theme.colors.white};
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        `;
+      case 'veg':
+        return `
+          background: rgba(16, 185, 129, 0.9);
+          color: ${theme.colors.white};
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        `;
+      case 'rating':
+        return `
+          background: rgba(99, 102, 241, 0.9);
+          color: ${theme.colors.white};
+          border: 1px solid rgba(99, 102, 241, 0.3);
+        `;
+      default:
+        return '';
+    }
+  }}
+  
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const FavoriteButton = styled(motion.button)`
+  position: absolute;
+  top: ${({ theme }) => theme.spacing.md};
+  right: ${({ theme }) => theme.spacing.md};
+  width: 40px;
+  height: 40px;
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: ${({ theme }) => theme.colors.white};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: ${({ theme }) => theme.transitions.normal};
+  z-index: 2;
+  
+  &:hover {
+    background: rgba(239, 68, 68, 0.8);
+    transform: scale(1.1);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const CardContent = styled.div`
+  padding: ${({ theme }) => theme.spacing.lg};
+  position: relative;
+  z-index: 1;
 `;
 
 const ItemHeader = styled.div`
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: ${theme.spacing.sm};
-  margin-bottom: ${theme.spacing.xs};
+  align-items: flex-start;
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacing.md};
+`;
+
+const ItemInfo = styled.div`
+  flex: 1;
 `;
 
 const ItemName = styled.h3`
-  font-family: ${theme.fonts.heading};
-  font-size: ${theme.fontSizes.lg};
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.text};
-  margin: 0;
+  font-family: ${({ theme }) => theme.fonts.heading};
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
   line-height: 1.3;
-  flex: 1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   
-  ${ItemContainer}:hover & {
-    color: ${theme.colors.primary};
-    text-shadow: 0 2px 4px rgba(229, 57, 53, 0.2);
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.lg};
   }
-`;
-
-const ItemBadges = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  flex-shrink: 0;
-`;
-
-const VegBadge = styled.div<{ isVeg: boolean }>`
-  width: 18px;
-  height: 18px;
-  border: 2px solid ${props => props.isVeg ? theme.colors.success : theme.colors.error};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 2px;
-  box-shadow: 
-    0 3px 8px ${props => props.isVeg ? 'rgba(67, 160, 71, 0.25)' : 'rgba(244, 67, 54, 0.25)'},
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.9);
-  
-  &::after {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background: ${props => props.isVeg ? theme.colors.success : theme.colors.error};
-    border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const PopularBadge = styled.span`
-  background: linear-gradient(135deg, ${theme.colors.warning} 0%, #ff8f00 100%);
-  color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.xs};
-  padding: 3px 8px;
-  border-radius: ${theme.borderRadius.sm};
-  font-weight: ${theme.fontWeights.bold};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 
-    0 3px 10px rgba(255, 152, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 `;
 
 const ItemDescription = styled.p`
-  font-size: ${theme.fontSizes.sm};
-  color: ${theme.colors.textLight};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
   line-height: 1.5;
-  margin: 0 0 ${theme.spacing.sm} 0;
+  margin-bottom: ${({ theme }) => theme.spacing.md};
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-weight: ${theme.fontWeights.normal};
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 `;
 
-const ItemFooter = styled.div`
+const PriceContainer = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing.sm};
+  flex-direction: column;
+  align-items: flex-end;
+  gap: ${({ theme }) => theme.spacing.xs};
+`;
+
+const Price = styled.div`
+  font-family: ${({ theme }) => theme.fonts.heading};
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  background: ${({ theme }) => theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const OriginalPrice = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
+  text-decoration: line-through;
 `;
 
 const ItemMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: ${theme.spacing.md};
-  font-size: ${theme.fontSizes.xs};
-  color: ${theme.colors.textMuted};
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  gap: ${({ theme }) => theme.spacing.md};
 `;
 
-const ItemRating = styled.div`
+const MetaItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 3px;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
-  padding: 3px 8px;
-  border-radius: ${theme.borderRadius.sm};
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.2);
-`;
-
-const ItemPrepTime = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  background: linear-gradient(135deg, rgba(67, 160, 71, 0.15) 0%, rgba(67, 160, 71, 0.08) 100%);
-  padding: 3px 8px;
-  border-radius: ${theme.borderRadius.sm};
-  border: 1px solid rgba(67, 160, 71, 0.3);
-  box-shadow: 0 2px 6px rgba(67, 160, 71, 0.2);
-`;
-
-const ItemPricing = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.sm};
-  flex-direction: column;
-  align-items: flex-end;
-`;
-
-const ItemPrice = styled.span`
-  font-family: ${theme.fonts.heading};
-  font-size: ${theme.fontSizes.xl};
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.primary};
-  text-shadow: 
-    0 2px 4px rgba(229, 57, 53, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.1);
+  gap: ${({ theme }) => theme.spacing.xs};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textLight};
   
-  ${ItemContainer}:hover & {
-    text-shadow: 
-      0 3px 6px rgba(229, 57, 53, 0.4),
-      0 1px 3px rgba(0, 0, 0, 0.15);
+  svg {
+    width: 16px;
+    height: 16px;
+    color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
-const ItemOriginalPrice = styled.span`
-  font-size: ${theme.fontSizes.sm};
-  color: ${theme.colors.textMuted};
-  text-decoration: line-through;
-  font-weight: ${theme.fontWeights.medium};
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+const ActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md};
 `;
 
-const MenuItemCard: React.FC<MenuItemProps> = ({ item, index }) => {
+const QuantityControl = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => theme.spacing.xs};
+`;
+
+const QuantityButton = styled(motion.button)`
+  width: 32px;
+  height: 32px;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: ${({ theme }) => theme.gradients.primary};
+  border: none;
+  color: ${({ theme }) => theme.colors.white};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: ${({ theme }) => theme.transitions.fast};
+  
+  &:hover {
+    background: ${({ theme }) => theme.gradients.buttonHover};
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const QuantityDisplay = styled.span`
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.text};
+  min-width: 24px;
+  text-align: center;
+`;
+
+const AddToCartButton = styled(motion.button)`
+  flex: 1;
+  background: ${({ theme }) => theme.gradients.button};
+  border: none;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  color: ${({ theme }) => theme.colors.white};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  transition: ${({ theme }) => theme.transitions.normal};
+  
+  &:hover {
+    background: ${({ theme }) => theme.gradients.buttonHover};
+    transform: translateY(-2px);
+  }
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, animationDelay = 0 }) => {
+  const [quantity, setQuantity] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleQuantityChange = (delta: number) => {
+    setQuantity(Math.max(0, quantity + delta));
+  };
+
+  const handleAddToCart = () => {
+    if (quantity === 0) {
+      setQuantity(1);
+    }
+    // Add to cart logic here
+    console.log(`Added ${quantity || 1} of ${item.name} to cart`);
+  };
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+  };
+
   return (
-    <ItemContainer
-      initial={{ opacity: 0, x: -30 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: '-20px' }}
-      transition={{ 
-        duration: 0.4, 
-        delay: index * 0.05,
-        ease: 'easeOut'
-      }}
+    <CardContainer
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: animationDelay }}
+      whileHover={{ scale: 1.02 }}
+      layout
     >
-      <ItemImage backgroundImage={item.image}>
-        {!item.image && '🍽️'}
-      </ItemImage>
-
-      <ItemContent>
-        <div>
-          <ItemHeader>
-            <ItemName>{item.name}</ItemName>
-            <ItemBadges>
-              <VegBadge isVeg={item.isVeg} />
-              {item.isPopular && <PopularBadge>★</PopularBadge>}
-            </ItemBadges>
-          </ItemHeader>
-
-          {item.description && (
-            <ItemDescription>{item.description}</ItemDescription>
+      <ImageContainer>
+        {item.image ? (
+          <ItemImage src={item.image} alt={item.name} />
+        ) : (
+          <ImagePlaceholder />
+        )}
+        
+        <BadgeContainer>
+          {item.isPopular && (
+            <Badge
+              $variant="popular"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: animationDelay + 0.2 }}
+            >
+              <Flame />
+              Popular
+            </Badge>
           )}
-        </div>
-
-        <ItemFooter>
-          <ItemMeta>
-            {item.rating && (
-              <ItemRating>
-                <span>⭐</span>
-                <span>{item.rating}</span>
-              </ItemRating>
+          
+          {item.isVeg && (
+            <Badge
+              $variant="veg"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: animationDelay + 0.3 }}
+            >
+              <Leaf />
+              Veg
+            </Badge>
+          )}
+          
+          {item.rating && (
+            <Badge
+              $variant="rating"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: animationDelay + 0.4 }}
+            >
+              <Star />
+              {item.rating}
+            </Badge>
+          )}
+        </BadgeContainer>
+        
+        <FavoriteButton
+          onClick={toggleFavorite}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          animate={{ color: isFavorite ? '#ef4444' : '#ffffff' }}
+        >
+          <Heart fill={isFavorite ? 'currentColor' : 'none'} />
+        </FavoriteButton>
+      </ImageContainer>
+      
+      <CardContent>
+        <ItemHeader>
+          <ItemInfo>
+            <ItemName>{item.name}</ItemName>
+            {item.description && (
+              <ItemDescription>{item.description}</ItemDescription>
             )}
-            {item.prepTime && (
-              <ItemPrepTime>
-                <span>🕐</span>
-                <span>{item.prepTime}</span>
-              </ItemPrepTime>
-            )}
-          </ItemMeta>
-
-          <ItemPricing>
-            <ItemPrice>{item.price}</ItemPrice>
+          </ItemInfo>
+          
+          <PriceContainer>
+            <Price>{item.price}</Price>
             {item.originalPrice && (
-              <ItemOriginalPrice>{item.originalPrice}</ItemOriginalPrice>
+              <OriginalPrice>{item.originalPrice}</OriginalPrice>
             )}
-          </ItemPricing>
-        </ItemFooter>
-      </ItemContent>
-    </ItemContainer>
+          </PriceContainer>
+        </ItemHeader>
+        
+        <ItemMeta>
+          {item.rating && (
+            <MetaItem>
+              <Star />
+              <span>{item.rating}</span>
+            </MetaItem>
+          )}
+          
+          {item.prepTime && (
+            <MetaItem>
+              <Clock />
+              <span>{item.prepTime}</span>
+            </MetaItem>
+          )}
+          
+          {item.isVeg && (
+            <MetaItem>
+              <Leaf />
+              <span>Vegetarian</span>
+            </MetaItem>
+          )}
+        </ItemMeta>
+        
+        <ActionContainer>
+          <AnimatePresence>
+            {quantity > 0 && (
+              <QuantityControl>
+                <QuantityButton
+                  onClick={() => handleQuantityChange(-1)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  disabled={quantity <= 0}
+                >
+                  <Minus />
+                </QuantityButton>
+                
+                <QuantityDisplay>{quantity}</QuantityDisplay>
+                
+                <QuantityButton
+                  onClick={() => handleQuantityChange(1)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Plus />
+                </QuantityButton>
+              </QuantityControl>
+            )}
+          </AnimatePresence>
+          
+          <AddToCartButton
+            onClick={handleAddToCart}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ShoppingCart />
+            {quantity > 0 ? `Update Cart` : 'Add to Cart'}
+          </AddToCartButton>
+        </ActionContainer>
+      </CardContent>
+    </CardContainer>
   );
 };
 

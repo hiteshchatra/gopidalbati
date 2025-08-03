@@ -4,13 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { theme } from './styles/theme';
 import { GlobalStyles } from './styles/GlobalStyles';
 
-// Components
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import SearchSection from './components/SearchSection';
-import MenuCategory from './components/MenuCategory';
-import Footer from './components/Footer';
-import LoadingSpinner from './components/LoadingSpinner';
+// New Components with completely different structure
+import Sidebar from './components/Sidebar';
+import MainContent from './components/MainContent';
+import MenuGrid from './components/MenuGrid';
+import QuickActions from './components/QuickActions';
+import MobileNav from './components/MobileNav';
 
 // Firebase services
 import {
@@ -67,14 +66,30 @@ const fallbackRestaurantInfo: RestaurantInfo = {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>(fallbackRestaurantInfo);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Restaurant ID from configuration
   const RESTAURANT_ID = APP_CONFIG.RESTAURANT_ID;
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load data from Firebase
   useEffect(() => {
@@ -89,21 +104,17 @@ function App() {
           fetchRestaurantInfo(RESTAURANT_ID)
         ]);
 
-        console.log('Firebase restaurant data:', restaurantData);
-
         // Transform Firebase data to match our structure
         if (categories.length > 0 && menuItems.length > 0) {
           const transformedMenu = transformFirebaseDataToMenu(categories, menuItems);
           setMenu(transformedMenu);
-          setDataLoaded(true);
         }
 
-        // FORCE USE FALLBACK DATA FOR NAME AND TAGLINES
-        // This ensures your new restaurant name and taglines are always used
+        // Use fallback data for name and taglines, Firebase data for others
         setRestaurantInfo({
-          name: fallbackRestaurantInfo.name, // Always use "Testy sizzler"
-          tagline: fallbackRestaurantInfo.tagline, // Always use "Mexican restaurant"
-          tagline2: fallbackRestaurantInfo.tagline2, // Always use "Mexican restaurant"
+          name: fallbackRestaurantInfo.name,
+          tagline: fallbackRestaurantInfo.tagline,
+          tagline2: fallbackRestaurantInfo.tagline2,
           phone: (restaurantData?.phone) || fallbackRestaurantInfo.phone,
           address: (restaurantData?.address) || fallbackRestaurantInfo.address,
           logo: (restaurantData?.logo) || fallbackRestaurantInfo.logo,
@@ -112,69 +123,99 @@ function App() {
 
       } catch (error) {
         console.error('Error loading Firebase data:', error);
-        // Keep fallback data if Firebase fails
         setRestaurantInfo(fallbackRestaurantInfo);
       } finally {
-        // Simulate loading time for better UX
+        // Quick loading - no unnecessary delays
         setTimeout(() => {
           setIsLoading(false);
-        }, 1500);
+        }, 800);
       }
     };
 
     loadFirebaseData();
   }, [RESTAURANT_ID]);
 
-  // Filter menu based on search query
+  // Filter menu based on search query and active category
   const filteredMenu = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return menu;
+    let filtered = menu;
+
+    // Filter by category
+    if (activeCategory !== 'all') {
+      filtered = menu.filter(category => category.id === activeCategory);
     }
 
-    const query = searchQuery.toLowerCase().trim();
-    return menu.map(category => ({
-      ...category,
-      items: category.items.filter(item => 
-        item.name.toLowerCase().includes(query) ||
-        (item.description && item.description.toLowerCase().includes(query))
-      )
-    })).filter(category => category.items.length > 0);
-  }, [menu, searchQuery]);
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.map(category => ({
+        ...category,
+        items: category.items.filter(item => 
+          item.name.toLowerCase().includes(query) ||
+          (item.description && item.description.toLowerCase().includes(query))
+        )
+      })).filter(category => category.items.length > 0);
+    }
 
-  // Handle scroll-based active category detection
-  useEffect(() => {
-    if (searchQuery) return;
+    return filtered;
+  }, [menu, searchQuery, activeCategory]);
 
-    const handleScroll = () => {
-      const categories = document.querySelectorAll('.category-section');
-      const scrollPosition = window.scrollY + 200;
-
-      categories.forEach((category) => {
-        const categoryElement = category as HTMLElement;
-        const categoryTop = categoryElement.offsetTop;
-        const categoryBottom = categoryTop + categoryElement.offsetHeight;
-
-        if (scrollPosition >= categoryTop && scrollPosition < categoryBottom) {
-          setActiveCategory(categoryElement.id);
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [searchQuery]);
-
-  // Handle search
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setActiveCategory('');
-  };
+  // Get all items for grid view
+  const allItems = useMemo(() => {
+    return filteredMenu.flatMap(category => 
+      category.items.map(item => ({ ...item, categoryName: category.name }))
+    );
+  }, [filteredMenu]);
 
   if (isLoading) {
     return (
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <LoadingSpinner restaurantName={restaurantInfo.name} />
+        <motion.div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            style={{
+              textAlign: 'center',
+              color: 'white'
+            }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              style={{
+                width: 60,
+                height: 60,
+                border: '4px solid rgba(255,255,255,0.3)',
+                borderTop: '4px solid white',
+                borderRadius: '50%',
+                margin: '0 auto 20px',
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            />
+            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>
+              {restaurantInfo.name}
+            </h2>
+            <p style={{ margin: '8px 0 0', opacity: 0.8 }}>
+              Loading delicious menu...
+            </p>
+          </motion.div>
+        </motion.div>
       </ThemeProvider>
     );
   }
@@ -182,59 +223,65 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
+      
+      <div className="app-container">
+        {/* Desktop Layout */}
+        {!isMobile && (
+          <>
+            <Sidebar
+              restaurantInfo={restaurantInfo}
+              categories={menu}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            
+            <MainContent>
+              <MenuGrid
+                items={allItems}
+                categories={filteredMenu}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                searchQuery={searchQuery}
+                activeCategory={activeCategory}
+              />
+            </MainContent>
+          </>
+        )}
 
-      <div className="app">
-        <Header
+        {/* Mobile Layout */}
+        {isMobile && (
+          <>
+            <MobileNav
+              restaurantInfo={restaurantInfo}
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+              categories={menu}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            
+            <MainContent isMobile>
+              <MenuGrid
+                items={allItems}
+                categories={filteredMenu}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                searchQuery={searchQuery}
+                activeCategory={activeCategory}
+                isMobile
+              />
+            </MainContent>
+          </>
+        )}
+
+        <QuickActions
           restaurantInfo={restaurantInfo}
-          categories={menu}
-          activeCategory={activeCategory}
+          isMobile={isMobile}
         />
-
-        <main>
-          <HeroSection restaurantInfo={restaurantInfo} />
-
-          <SearchSection
-            onSearch={handleSearch}
-            searchQuery={searchQuery}
-          />
-
-          <motion.div
-            className="menu-container"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <AnimatePresence mode="wait">
-              {filteredMenu.map((category, index) => (
-                category.items.length > 0 && (
-                  <MenuCategory
-                    key={`${category.id}-${searchQuery}`}
-                    category={category}
-                    animationDelay={index * 0.1}
-                  />
-                )
-              ))}
-            </AnimatePresence>
-
-            {filteredMenu.length === 0 && searchQuery && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{
-                  textAlign: 'center',
-                  padding: '4rem 1rem',
-                  color: theme.colors.textMuted
-                }}
-              >
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                <h3>No items found</h3>
-                <p>No dishes match "{searchQuery}". Try a different search term.</p>
-              </motion.div>
-            )}
-          </motion.div>
-        </main>
-
-        <Footer restaurantInfo={restaurantInfo} />
       </div>
     </ThemeProvider>
   );
