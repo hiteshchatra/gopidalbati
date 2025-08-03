@@ -202,11 +202,6 @@ const SortOption = styled(motion.button)`
   }
 `;
 
-const GridWrapper = styled.div`
-  position: relative;
-  min-height: 200px;
-`;
-
 const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   display: grid;
   gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[4] : theme.spacing[3]};
@@ -469,41 +464,6 @@ const EmptyState = styled(motion.div)`
   }
 `;
 
-// Animation variants for smooth category transitions
-const containerVariants = {
-  hidden: { 
-    opacity: 0,
-    transition: {
-      staggerChildren: 0.02,
-      staggerDirection: -1
-    }
-  },
-  visible: { 
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 20,
-    scale: 0.95
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1]
-    }
-  }
-};
-
 const MenuGrid: React.FC<MenuGridProps> = ({
   items,
   categories,
@@ -670,70 +630,73 @@ const MenuGrid: React.FC<MenuGridProps> = ({
         </HeaderControls>
       </GridHeader>
 
-      <GridWrapper>
-        <AnimatePresence mode="wait">
-          <ItemsGrid
-            key={`${activeCategory}-${viewMode}-${sortBy}`}
+      <ItemsGrid
+        key={`${activeCategory}-${viewMode}-${sortBy}`}
+        $viewMode={viewMode}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
+      >
+        {sortedItems.map((item, index) => (
+          <ItemCard
+            key={item.id}
             $viewMode={viewMode}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ 
+              opacity: 1, 
+              y: 0,
+              transition: {
+                duration: 0.25,
+                delay: index * 0.02,
+                ease: [0.4, 0, 0.2, 1]
+              }
+            }}
+            whileHover={{ 
+              scale: viewMode === 'grid' ? 1.02 : 1.01,
+              transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
+            }}
           >
-            {sortedItems.map((item, index) => (
-              <ItemCard
-                key={item.id}
-                $viewMode={viewMode}
-                variants={itemVariants}
-                whileHover={{ 
-                  scale: viewMode === 'grid' ? 1.02 : 1.01,
-                  transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
-                }}
-              >
-                <ItemImage $image={item.image} $viewMode={viewMode}>
-                  {item.isPopular && (
-                    <PopularBadge>
-                      Popular
-                    </PopularBadge>
-                  )}
-                </ItemImage>
-                
-                <ItemContent $viewMode={viewMode}>
-                  <ItemHeader>
-                    <ItemTitleSection $viewMode={viewMode}>
-                      <ItemName $viewMode={viewMode}>{item.name}</ItemName>
-                      <PriceContainer $viewMode={viewMode}>
-                        <Price>{item.price}</Price>
-                        {item.originalPrice && (
-                          <OriginalPrice>{item.originalPrice}</OriginalPrice>
-                        )}
-                      </PriceContainer>
-                    </ItemTitleSection>
-                    
-                    {item.description && (
-                      <ItemDescription>{item.description}</ItemDescription>
+            <ItemImage $image={item.image} $viewMode={viewMode}>
+              {item.isPopular && (
+                <PopularBadge>
+                  Popular
+                </PopularBadge>
+              )}
+            </ItemImage>
+            
+            <ItemContent $viewMode={viewMode}>
+              <ItemHeader>
+                <ItemTitleSection $viewMode={viewMode}>
+                  <ItemName $viewMode={viewMode}>{item.name}</ItemName>
+                  <PriceContainer $viewMode={viewMode}>
+                    <Price>{item.price}</Price>
+                    {item.originalPrice && (
+                      <OriginalPrice>{item.originalPrice}</OriginalPrice>
                     )}
-                    
-                    <ItemMeta>
-                      {item.prepTime && (
-                        <MetaItem>
-                          <Clock />
-                          <span>{item.prepTime}</span>
-                        </MetaItem>
-                      )}
-                      {viewMode === 'list' && item.categoryName && (
-                        <MetaItem>
-                          <span>{item.categoryName}</span>
-                        </MetaItem>
-                      )}
-                    </ItemMeta>
-                  </ItemHeader>
-                </ItemContent>
-              </ItemCard>
-            ))}
-          </ItemsGrid>
-        </AnimatePresence>
-      </GridWrapper>
+                  </PriceContainer>
+                </ItemTitleSection>
+                
+                {item.description && (
+                  <ItemDescription>{item.description}</ItemDescription>
+                )}
+                
+                <ItemMeta>
+                  {item.prepTime && (
+                    <MetaItem>
+                      <Clock />
+                      <span>{item.prepTime}</span>
+                    </MetaItem>
+                  )}
+                  {viewMode === 'list' && item.categoryName && (
+                    <MetaItem>
+                      <span>{item.categoryName}</span>
+                    </MetaItem>
+                  )}
+                </ItemMeta>
+              </ItemHeader>
+            </ItemContent>
+          </ItemCard>
+        ))}
+      </ItemsGrid>
     </GridContainer>
   );
 };
