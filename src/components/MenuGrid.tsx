@@ -59,8 +59,8 @@ const HeaderLeft = styled.div`
   gap: ${({ theme }) => theme.spacing[2]};
 `;
 
-const HeaderTitle = styled(motion.h1)`
-  font-family: ${({ theme }) => theme.fonts.heading};
+const HeaderTitle = styled.h1`
+  font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes['4xl']};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   background: ${({ theme }) => theme.gradients.primary};
@@ -74,18 +74,17 @@ const HeaderTitle = styled(motion.h1)`
   }
 `;
 
-const HeaderSubtitle = styled(motion.p)`
+const HeaderSubtitle = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   margin: 0;
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
   
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     font-size: ${({ theme }) => theme.fontSizes.base};
   }
 `;
 
-const HeaderControls = styled(motion.div)`
+const HeaderControls = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
@@ -98,28 +97,19 @@ const HeaderControls = styled(motion.div)`
 
 const ViewToggle = styled.div`
   display: flex;
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: ${({ theme }) => theme.colors.surface};
   border-radius: ${({ theme }) => theme.borderRadius.xl};
   padding: ${({ theme }) => theme.spacing[1]};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
-  }
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 const ViewButton = styled(motion.button)<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ $isActive, theme }) => 
@@ -150,23 +140,21 @@ const SortButton = styled(motion.button)<{ $isOpen: boolean }>`
   align-items: center;
   gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.xl};
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
   font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   transition: ${({ theme }) => theme.transitions.normal};
-  min-width: 140px;
-  box-shadow: ${({ theme }) => theme.shadows.glass};
+  min-width: 120px;
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   
   &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
+    background: ${({ theme }) => theme.colors.surfaceHover};
     transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
+    box-shadow: ${({ theme }) => theme.shadows.md};
     border-color: ${({ theme }) => theme.colors.primary};
   }
   
@@ -183,15 +171,13 @@ const SortDropdown = styled(motion.div)`
   top: 100%;
   right: 0;
   margin-top: ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.xl};
   box-shadow: ${({ theme }) => theme.shadows.xl};
   overflow: hidden;
   z-index: ${({ theme }) => theme.zIndex.dropdown};
-  min-width: 200px;
+  min-width: 180px;
 `;
 
 const SortOption = styled(motion.button)`
@@ -210,13 +196,12 @@ const SortOption = styled(motion.button)`
   transition: ${({ theme }) => theme.transitions.fast};
   
   &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
+    background: ${({ theme }) => theme.colors.surfaceHover};
     color: ${({ theme }) => theme.colors.primary};
-    transform: translateX(4px);
   }
   
   &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.colors.glassBorder};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   }
 `;
 
@@ -225,10 +210,10 @@ const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[6] : theme.spacing[4]};
   
   ${({ $viewMode }) => $viewMode === 'grid' ? `
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     
     @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
     
     @media (max-width: 640px) {
@@ -240,13 +225,11 @@ const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
 `;
 
 const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: ${({ theme }) => theme.colors.surface};
   border-radius: ${({ theme }) => theme.borderRadius['2xl']};
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.shadows.glass};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
+  box-shadow: ${({ theme }) => theme.shadows.card};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   transition: ${({ theme }) => theme.transitions.normal};
   cursor: pointer;
   position: relative;
@@ -254,14 +237,13 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   ${({ $viewMode }) => $viewMode === 'list' ? `
     display: flex;
     align-items: stretch;
-    padding: 1.5rem;
-    min-height: 160px;
+    padding: 1.25rem;
+    min-height: 150px;
   ` : ''}
   
   &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
-    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(8px)' : 'translateY(-8px)'};
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
+    transform: ${({ $viewMode }) => $viewMode === 'list' ? 'translateX(6px)' : 'translateY(-6px)'};
+    box-shadow: ${({ theme }) => theme.shadows.cardHover};
     border-color: ${({ theme }) => theme.colors.primary};
   }
   
@@ -276,29 +258,28 @@ const ItemCard = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
     opacity: 0;
     transition: ${({ theme }) => theme.transitions.normal};
     pointer-events: none;
-    border-radius: ${({ theme }) => theme.borderRadius['2xl']};
   }
   
   &:hover::before {
-    opacity: 0.03;
+    opacity: 0.02;
   }
 `;
 
-const ItemImage = styled(motion.div)<{ $image?: string; $viewMode: 'grid' | 'list' }>`
+const ItemImage = styled.div<{ $image?: string; $viewMode: 'grid' | 'list' }>`
   ${({ $viewMode }) => $viewMode === 'grid' ? `
     width: 100%;
-    height: 240px;
+    height: 220px;
   ` : `
-    width: 140px;
-    height: 140px;
+    width: 130px;
+    height: 130px;
     flex-shrink: 0;
-    margin-right: 1.5rem;
-    border-radius: 1.25rem;
+    margin-right: 1.25rem;
+    border-radius: 1rem;
     overflow: hidden;
     
     @media (max-width: 640px) {
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
       margin-right: 1rem;
     }
   `}
@@ -308,11 +289,6 @@ const ItemImage = styled(motion.div)<{ $image?: string; $viewMode: 'grid' | 'lis
   background-size: cover;
   background-position: center;
   position: relative;
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    transform: scale(1.02);
-  }
   
   ${({ $image, $viewMode }) => !$image && `
     display: flex;
@@ -321,29 +297,27 @@ const ItemImage = styled(motion.div)<{ $image?: string; $viewMode: 'grid' | 'lis
     
     &::before {
       content: '🍽️';
-      font-size: ${$viewMode === 'list' ? '2.5rem' : '4rem'};
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      font-size: ${$viewMode === 'list' ? '2.5rem' : '3.5rem'};
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
     }
   `}
 `;
 
-const PopularBadge = styled(motion.div)`
+const PopularBadge = styled.div`
   position: absolute;
   top: ${({ theme }) => theme.spacing[3]};
   left: ${({ theme }) => theme.spacing[3]};
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[1]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  color: ${({ theme }) => theme.colors.warning};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  background: rgba(245, 158, 11, 0.95);
+  color: ${({ theme }) => theme.colors.white};
   border-radius: ${({ theme }) => theme.borderRadius.full};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
+  backdrop-filter: blur(10px);
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   
   svg {
     width: 12px;
@@ -352,12 +326,12 @@ const PopularBadge = styled(motion.div)`
 `;
 
 const ItemContent = styled.div<{ $viewMode: 'grid' | 'list' }>`
-  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '2rem' : '0'};
+  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1.75rem' : '0'};
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: ${({ $viewMode }) => $viewMode === 'list' ? '140px' : 'auto'};
+  min-height: ${({ $viewMode }) => $viewMode === 'list' ? '130px' : 'auto'};
   position: relative;
   z-index: 1;
 `;
@@ -366,7 +340,7 @@ const ItemHeader = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `;
 
-const ItemName = styled(motion.h3)`
+const ItemName = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.xl};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.text};
@@ -378,7 +352,7 @@ const ItemName = styled(motion.h3)`
   }
 `;
 
-const ItemDescription = styled(motion.p)`
+const ItemDescription = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
   line-height: 1.6;
@@ -389,7 +363,7 @@ const ItemDescription = styled(motion.p)`
   overflow: hidden;
 `;
 
-const ItemMeta = styled(motion.div)`
+const ItemMeta = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[4]};
@@ -404,19 +378,15 @@ const MetaItem = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textLight};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) => theme.colors.glass};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
   
   svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
-const ItemFooter = styled(motion.div)`
+const ItemFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -429,7 +399,7 @@ const PriceContainer = styled.div`
   gap: ${({ theme }) => theme.spacing[1]};
 `;
 
-const Price = styled(motion.div)`
+const Price = styled.div`
   font-size: ${({ theme }) => theme.fontSizes['2xl']};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   background: ${({ theme }) => theme.gradients.primary};
@@ -453,18 +423,11 @@ const EmptyState = styled(motion.div)`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[20]} ${({ theme }) => theme.spacing[8]};
   color: ${({ theme }) => theme.colors.textMuted};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: ${({ theme }) => theme.borderRadius['3xl']};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
   
   .emoji {
     font-size: 5rem;
     margin-bottom: ${({ theme }) => theme.spacing[6]};
     opacity: 0.6;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   }
   
   h3 {
@@ -564,41 +527,15 @@ const MenuGrid: React.FC<MenuGridProps> = ({
     return sortOptions.find(option => option.value === sortBy)?.label || 'Sort';
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
-    }
-  };
-
   if (items.length === 0) {
     return (
       <GridContainer>
         <EmptyState
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.5 }}
         >
-          <motion.div 
-            className="emoji"
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            🔍
-          </motion.div>
+          <div className="emoji">🔍</div>
           <h3>No items found</h3>
           <p>
             {searchQuery 
@@ -614,32 +551,16 @@ const MenuGrid: React.FC<MenuGridProps> = ({
   return (
     <GridContainer>
       <GridHeader
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.5 }}
       >
         <HeaderLeft>
-          <HeaderTitle
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            {getHeaderTitle()}
-          </HeaderTitle>
-          <HeaderSubtitle
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {getHeaderSubtitle()}
-          </HeaderSubtitle>
+          <HeaderTitle>{getHeaderTitle()}</HeaderTitle>
+          <HeaderSubtitle>{getHeaderSubtitle()}</HeaderSubtitle>
         </HeaderLeft>
         
-        <HeaderControls
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
+        <HeaderControls>
           <ViewToggle>
             <ViewButton
               $isActive={viewMode === 'grid'}
@@ -679,16 +600,13 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {sortOptions.map((option, index) => (
+                  {sortOptions.map((option) => (
                     <SortOption
                       key={option.value}
                       onClick={() => {
                         setSortBy(option.value as SortOption);
                         setIsSortOpen(false);
                       }}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
                       whileHover={{ x: 4 }}
                     >
                       {option.label}
@@ -703,35 +621,24 @@ const MenuGrid: React.FC<MenuGridProps> = ({
 
       <ItemsGrid
         $viewMode={viewMode}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <AnimatePresence mode="wait">
           {sortedItems.map((item, index) => (
             <ItemCard
               key={item.id}
               $viewMode={viewMode}
-              variants={itemVariants}
-              whileHover={{ 
-                scale: viewMode === 'grid' ? 1.02 : 1.01,
-                transition: { duration: 0.2 }
-              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.03 }}
+              whileHover={{ scale: viewMode === 'grid' ? 1.02 : 1.01 }}
               layout
             >
-              <ItemImage 
-                $image={item.image} 
-                $viewMode={viewMode}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
+              <ItemImage $image={item.image} $viewMode={viewMode}>
                 {item.isPopular && (
-                  <PopularBadge
-                    initial={{ scale: 0, rotate: -10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 500 }}
-                    whileHover={{ scale: 1.1, rotate: 2 }}
-                  >
+                  <PopularBadge>
                     <Star />
                     Popular
                   </PopularBadge>
@@ -741,29 +648,13 @@ const MenuGrid: React.FC<MenuGridProps> = ({
               <ItemContent $viewMode={viewMode}>
                 <div>
                   <ItemHeader>
-                    <ItemName
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      {item.name}
-                    </ItemName>
+                    <ItemName>{item.name}</ItemName>
                     {item.description && (
-                      <ItemDescription
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {item.description}
-                      </ItemDescription>
+                      <ItemDescription>{item.description}</ItemDescription>
                     )}
                   </ItemHeader>
                   
-                  <ItemMeta
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
+                  <ItemMeta>
                     {item.rating && (
                       <MetaItem>
                         <Star />
@@ -784,18 +675,9 @@ const MenuGrid: React.FC<MenuGridProps> = ({
                   </ItemMeta>
                 </div>
                 
-                <ItemFooter
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
+                <ItemFooter>
                   <PriceContainer>
-                    <Price
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ type: "spring", stiffness: 400 }}
-                    >
-                      {item.price}
-                    </Price>
+                    <Price>{item.price}</Price>
                     {item.originalPrice && (
                       <OriginalPrice>{item.originalPrice}</OriginalPrice>
                     )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Phone, MapPin, Clock, Star, Filter } from 'lucide-react';
+import { Search, Phone, MapPin, Clock, Star, Filter, Grid, List } from 'lucide-react';
 
 interface MenuCategory {
   id: string;
@@ -30,13 +30,11 @@ interface SidebarProps {
 const SidebarContainer = styled(motion.aside)`
   width: ${({ theme }) => theme.layout.sidebarWidth};
   height: 100vh;
-  background: ${({ theme }) => theme.colors.surface};
+  background: ${({ theme }) => theme.gradients.sidebarGradient};
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  border-right: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: ${({ theme }) => theme.shadows.xl};
   
   &::before {
     content: '';
@@ -45,12 +43,9 @@ const SidebarContainer = styled(motion.aside)`
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-      ${({ theme }) => theme.gradients.mesh1},
-      ${({ theme }) => theme.gradients.mesh2};
-    opacity: 0.5;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.03)"/><circle cx="20" cy="80" r="0.5" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
     pointer-events: none;
-    animation: meshShift 15s ease-in-out infinite;
   }
 `;
 
@@ -66,40 +61,20 @@ const SidebarContent = styled.div`
 const RestaurantHeader = styled(motion.div)`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
   text-align: center;
-  padding: ${({ theme }) => theme.spacing[6]};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
-  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
-  }
 `;
 
-const RestaurantLogo = styled(motion.div)`
+const RestaurantLogo = styled.div`
   width: 80px;
   height: 80px;
   margin: 0 auto ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.borderRadius['2xl']};
-  background: ${({ theme }) => theme.gradients.primary};
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid ${({ theme }) => theme.colors.glassBorder};
+  border: 2px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.shadows.primary};
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    transform: scale(1.05) rotate(2deg);
-    box-shadow: ${({ theme }) => theme.shadows.primaryHover};
-  }
   
   img {
     width: 100%;
@@ -112,56 +87,45 @@ const RestaurantLogo = styled(motion.div)`
     content: '🍽️';
     font-size: 2rem;
     display: ${props => props.children ? 'none' : 'block'};
-    color: white;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
 `;
 
-const RestaurantName = styled(motion.h1)`
-  font-family: ${({ theme }) => theme.fonts.heading};
+const RestaurantName = styled.h1`
+  font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes['2xl']};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  background: ${({ theme }) => theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: ${({ theme }) => theme.colors.white};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 `;
 
-const RestaurantTagline = styled(motion.p)`
+const RestaurantTagline = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textMuted};
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
 `;
 
-const SearchContainer = styled(motion.div)`
+const SearchContainer = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[6]};
 `;
 
 const SearchWrapper = styled.div`
   position: relative;
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border-radius: ${({ theme }) => theme.borderRadius.xl};
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
+  border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   transition: ${({ theme }) => theme.transitions.normal};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
   
   &:focus-within {
-    background: ${({ theme }) => theme.colors.glassHover};
-    border-color: ${({ theme }) => theme.colors.primary};
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.primary};
-  }
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -171,21 +135,21 @@ const SearchInput = styled.input`
   background: transparent;
   border: none;
   outline: none;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.white};
   font-size: ${({ theme }) => theme.fontSizes.base};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   
   &::placeholder {
-    color: ${({ theme }) => theme.colors.textMuted};
+    color: rgba(255, 255, 255, 0.6);
   }
 `;
 
-const SearchIcon = styled(motion.div)`
+const SearchIcon = styled.div`
   position: absolute;
   left: ${({ theme }) => theme.spacing[4]};
   top: 50%;
   transform: translateY(-50%);
-  color: ${({ theme }) => theme.colors.primary};
+  color: rgba(255, 255, 255, 0.7);
   
   svg {
     width: 20px;
@@ -201,39 +165,32 @@ const QuickStats = styled(motion.div)`
 `;
 
 const StatCard = styled(motion.div)`
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: ${({ theme }) => theme.transitions.normal};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
   
   &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
   }
 `;
 
 const StatValue = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  background: ${({ theme }) => theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: ${({ theme }) => theme.colors.white};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `;
 
 const StatLabel = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
 `;
 
 const CategoriesSection = styled.div`
@@ -243,10 +200,10 @@ const CategoriesSection = styled.div`
   flex-direction: column;
 `;
 
-const SectionTitle = styled(motion.h3)`
+const SectionTitle = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.white};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
   display: flex;
   align-items: center;
@@ -255,7 +212,6 @@ const SectionTitle = styled(motion.h3)`
   svg {
     width: 20px;
     height: 20px;
-    color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
@@ -265,16 +221,16 @@ const CategoriesList = styled.div`
   padding-right: ${({ theme }) => theme.spacing[2]};
   
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   &::-webkit-scrollbar-track {
-    background: ${({ theme }) => theme.colors.backgroundAlt};
+    background: rgba(255, 255, 255, 0.1);
     border-radius: ${({ theme }) => theme.borderRadius.full};
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.gradients.primary};
+    background: rgba(255, 255, 255, 0.3);
     border-radius: ${({ theme }) => theme.borderRadius.full};
   }
 `;
@@ -284,29 +240,22 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[4]};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
-  background: ${({ $isActive, theme }) => 
-    $isActive ? theme.gradients.primary : theme.colors.glass};
-  border: 1px solid ${({ $isActive, theme }) => 
-    $isActive ? 'transparent' : theme.colors.glassBorder};
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
-  color: ${({ $isActive, theme }) => 
-    $isActive ? theme.colors.white : theme.colors.text};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  background: ${({ $isActive }) => 
+    $isActive ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $isActive }) => 
+    $isActive ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  color: ${({ theme }) => theme.colors.white};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.normal};
   text-align: left;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: ${({ $isActive, theme }) => 
-    $isActive ? theme.shadows.primary : theme.shadows.glass};
+  backdrop-filter: blur(10px);
   
   &:hover {
-    background: ${({ $isActive, theme }) => 
-      $isActive ? theme.gradients.primary : theme.colors.glassHover};
-    transform: translateX(6px) scale(1.02);
-    box-shadow: ${({ $isActive, theme }) => 
-      $isActive ? theme.shadows.primaryHover : theme.shadows.glassHover};
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
   }
   
   &:last-child {
@@ -314,12 +263,11 @@ const CategoryItem = styled(motion.button)<{ $isActive: boolean }>`
   }
 `;
 
-const CategoryIcon = styled(motion.div)`
+const CategoryIcon = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.xl};
   min-width: 32px;
   text-align: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: ${({ theme }) => theme.transitions.normal};
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 `;
 
 const CategoryInfo = styled.div`
@@ -328,53 +276,33 @@ const CategoryInfo = styled.div`
 
 const CategoryName = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.base};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `;
 
 const CategoryCount = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.xs};
-  opacity: 0.8;
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  color: rgba(255, 255, 255, 0.7);
 `;
 
 const ContactInfo = styled(motion.div)`
   margin-top: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) => theme.spacing[6]};
-  background: ${({ theme }) => theme.colors.glass};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ theme }) => theme.colors.glassBorder};
-  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
-  box-shadow: ${({ theme }) => theme.shadows.glass};
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.glassHover};
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.glassHover};
-  }
+  padding-top: ${({ theme }) => theme.spacing[6]};
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
-const ContactItem = styled(motion.div)`
+const ContactItem = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
-  color: ${({ theme }) => theme.colors.textLight};
+  color: rgba(255, 255, 255, 0.8);
   font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  transition: ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    transform: translateX(4px);
-  }
   
   svg {
     width: 16px;
     height: 16px;
-    color: ${({ theme }) => theme.colors.primary};
+    color: rgba(255, 255, 255, 0.6);
   }
   
   &:last-child {
@@ -391,73 +319,37 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSearchChange,
 }) => {
   const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
-  const avgRating = 4.8;
+  const avgRating = 4.8; // You can calculate this from actual data
 
   const allCategories = [
     { id: 'all', name: 'All Items', icon: '🍽️', items: { length: totalItems } },
     ...categories
   ];
 
-  const containerVariants = {
-    hidden: { x: -320, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.4, 0, 0.2, 1],
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { x: -20, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.4 }
-    }
-  };
-
   return (
     <SidebarContainer
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+      initial={{ x: -320 }}
+      animate={{ x: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <SidebarContent>
-        <RestaurantHeader variants={itemVariants}>
-          <RestaurantLogo
-            whileHover={{ scale: 1.05, rotate: 2 }}
-            whileTap={{ scale: 0.95 }}
-          >
+        <RestaurantHeader
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <RestaurantLogo>
             {restaurantInfo.logo && (
               <img src={restaurantInfo.logo} alt={restaurantInfo.name} />
             )}
           </RestaurantLogo>
-          <RestaurantName
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            {restaurantInfo.name}
-          </RestaurantName>
-          <RestaurantTagline
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            {restaurantInfo.tagline}
-          </RestaurantTagline>
+          <RestaurantName>{restaurantInfo.name}</RestaurantName>
+          <RestaurantTagline>{restaurantInfo.tagline}</RestaurantTagline>
         </RestaurantHeader>
 
-        <SearchContainer variants={itemVariants}>
+        <SearchContainer>
           <SearchWrapper>
-            <SearchIcon
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <SearchIcon>
               <Search />
             </SearchIcon>
             <SearchInput
@@ -469,25 +361,23 @@ const Sidebar: React.FC<SidebarProps> = ({
           </SearchWrapper>
         </SearchContainer>
 
-        <QuickStats variants={itemVariants}>
-          <StatCard
-            whileHover={{ scale: 1.05, y: -4 }}
-            whileTap={{ scale: 0.95 }}
-          >
+        <QuickStats
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <StatCard whileHover={{ scale: 1.05 }}>
             <StatValue>{totalItems}</StatValue>
             <StatLabel>Items</StatLabel>
           </StatCard>
-          <StatCard
-            whileHover={{ scale: 1.05, y: -4 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <StatCard whileHover={{ scale: 1.05 }}>
             <StatValue>{avgRating}★</StatValue>
             <StatLabel>Rating</StatLabel>
           </StatCard>
         </QuickStats>
 
         <CategoriesSection>
-          <SectionTitle variants={itemVariants}>
+          <SectionTitle>
             <Filter />
             Categories
           </SectionTitle>
@@ -499,17 +389,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                   key={category.id}
                   $isActive={activeCategory === category.id}
                   onClick={() => onCategoryChange(category.id)}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02, x: 6 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  custom={index}
                 >
-                  <CategoryIcon
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    {category.icon}
-                  </CategoryIcon>
+                  <CategoryIcon>{category.icon}</CategoryIcon>
                   <CategoryInfo>
                     <CategoryName>{category.name}</CategoryName>
                     <CategoryCount>
@@ -522,27 +408,22 @@ const Sidebar: React.FC<SidebarProps> = ({
           </CategoriesList>
         </CategoriesSection>
 
-        <ContactInfo variants={itemVariants}>
+        <ContactInfo
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
           {restaurantInfo.phone && (
-            <ContactItem
-              whileHover={{ x: 4 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
+            <ContactItem>
               <Phone />
               <span>{restaurantInfo.phone}</span>
             </ContactItem>
           )}
-          <ContactItem
-            whileHover={{ x: 4 }}
-            transition={{ type: "spring", stiffness: 400 }}
-          >
+          <ContactItem>
             <Clock />
             <span>9 AM - 11 PM</span>
           </ContactItem>
-          <ContactItem
-            whileHover={{ x: 4 }}
-            transition={{ type: "spring", stiffness: 400 }}
-          >
+          <ContactItem>
             <Star />
             <span>4.8 Rating • 500+ Reviews</span>
           </ContactItem>
