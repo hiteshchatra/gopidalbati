@@ -59,7 +59,7 @@ const HeaderLeft = styled.div`
 `;
 
 const HeaderTitle = styled.h1`
-  font-family: ${({ theme }) => theme.fonts.heading};
+  font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes['3xl']};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.text};
@@ -71,6 +71,7 @@ const HeaderTitle = styled.h1`
 `;
 
 const HeaderSubtitle = styled.p`
+  font-family: ${({ theme }) => theme.fonts.body};
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: ${({ theme }) => theme.fontSizes.base};
   margin: 0;
@@ -141,6 +142,7 @@ const SortButton = styled(motion.button)<{ $isOpen: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   transition: ${({ theme }) => theme.transitions.normal};
@@ -184,6 +186,7 @@ const SortOption = styled(motion.button)`
   border: none;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   text-align: left;
@@ -201,10 +204,10 @@ const SortOption = styled(motion.button)`
 
 const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
   display: grid;
-  gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[3] : theme.spacing[3]};
+  gap: ${({ theme, $viewMode }) => $viewMode === 'grid' ? theme.spacing[4] : theme.spacing[3]};
   
   ${({ $viewMode }) => $viewMode === 'grid' ? `
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     
     @media (min-width: 1280px) {
       grid-template-columns: repeat(4, 1fr);
@@ -213,12 +216,12 @@ const ItemsGrid = styled(motion.div)<{ $viewMode: 'grid' | 'list' }>`
     }
     
     @media (max-width: 1024px) {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
     
     @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: ${({ theme }) => theme.spacing[2]};
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: ${({ theme }) => theme.spacing[3]};
     }
     
     @media (max-width: 480px) {
@@ -303,6 +306,7 @@ const PopularBadge = styled.div`
   background: rgba(245, 158, 11, 0.9);
   color: ${({ theme }) => theme.colors.white};
   border-radius: ${({ theme }) => theme.borderRadius.full};
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   backdrop-filter: blur(10px);
@@ -314,7 +318,7 @@ const PopularBadge = styled.div`
 `;
 
 const ItemContent = styled.div<{ $viewMode: 'grid' | 'list' }>`
-  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1rem' : '0'};
+  padding: ${({ $viewMode }) => $viewMode === 'grid' ? '1.25rem' : '0'};
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -335,15 +339,18 @@ const ItemTopRow = styled.div`
 `;
 
 const ItemName = styled.h3`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
+  font-family: ${({ theme }) => theme.fonts.heading};
+  font-size: ${({ theme }) => theme.fontSizes.base};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.4;
   flex: 1;
+  max-width: 60%;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: ${({ theme }) => theme.fontSizes.base};
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+    max-width: 65%;
   }
 `;
 
@@ -352,19 +359,24 @@ const PriceContainer = styled.div`
   flex-direction: column;
   align-items: flex-end;
   gap: ${({ theme }) => theme.spacing[1]};
+  min-width: 35%;
+  text-align: right;
 `;
 
 const Price = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-family: ${({ theme }) => theme.fonts.accent};
+  font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.primary};
+  white-space: nowrap;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: ${({ theme }) => theme.fontSizes.lg};
+    font-size: ${({ theme }) => theme.fontSizes.base};
   }
 `;
 
 const OriginalPrice = styled.span`
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
   text-decoration: line-through;
@@ -372,9 +384,10 @@ const OriginalPrice = styled.span`
 `;
 
 const ItemDescription = styled.p`
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
-  line-height: 1.4;
+  line-height: 1.5;
   margin-bottom: ${({ theme }) => theme.spacing[2]};
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -393,6 +406,7 @@ const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[1]};
+  font-family: ${({ theme }) => theme.fonts.body};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textLight};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
@@ -416,6 +430,7 @@ const EmptyState = styled(motion.div)`
   }
   
   h3 {
+    font-family: ${({ theme }) => theme.fonts.heading};
     font-size: ${({ theme }) => theme.fontSizes['2xl']};
     margin-bottom: ${({ theme }) => theme.spacing[3]};
     color: ${({ theme }) => theme.colors.textLight};
@@ -423,6 +438,7 @@ const EmptyState = styled(motion.div)`
   }
   
   p {
+    font-family: ${({ theme }) => theme.fonts.body};
     font-size: ${({ theme }) => theme.fontSizes.base};
     max-width: 400px;
     margin: 0 auto;

@@ -58,26 +58,31 @@ export const theme = {
     // Card gradients
     cardGradient: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
     hoverGradient: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+    
+    // Button gradients
+    button: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
+    buttonHover: 'linear-gradient(135deg, #15803d 0%, #16a34a 100%)',
   },
   
   fonts: {
-    heading: "'Inter', sans-serif",
+    heading: "'Poppins', sans-serif",
     body: "'Inter', sans-serif",
     mono: "'JetBrains Mono', monospace",
-    display: "'Inter', sans-serif",
+    display: "'Playfair Display', serif",
+    accent: "'Poppins', sans-serif",
   },
   
   fontSizes: {
-    xs: 'clamp(0.75rem, 1.5vw, 0.875rem)',
-    sm: 'clamp(0.875rem, 2vw, 1rem)',
-    base: 'clamp(1rem, 2.5vw, 1.125rem)',
-    lg: 'clamp(1.125rem, 3vw, 1.25rem)',
-    xl: 'clamp(1.25rem, 3.5vw, 1.5rem)',
-    '2xl': 'clamp(1.5rem, 4vw, 1.875rem)',
-    '3xl': 'clamp(1.875rem, 5vw, 2.25rem)',
-    '4xl': 'clamp(2.25rem, 6vw, 3rem)',
-    '5xl': 'clamp(3rem, 7vw, 4rem)',
-    '6xl': 'clamp(4rem, 8vw, 5rem)',
+    xs: '0.75rem',      // 12px
+    sm: '0.875rem',     // 14px
+    base: '1rem',       // 16px
+    lg: '1.125rem',     // 18px
+    xl: '1.25rem',      // 20px
+    '2xl': '1.5rem',    // 24px
+    '3xl': '1.875rem',  // 30px
+    '4xl': '2.25rem',   // 36px
+    '5xl': '3rem',      // 48px
+    '6xl': '3.75rem',   // 60px
   },
   
   fontWeights: {
